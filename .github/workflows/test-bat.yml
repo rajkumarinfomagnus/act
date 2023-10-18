@@ -11,4 +11,5 @@ jobs:
     - name: Run bat file
       run: |
         cd $GITHUB_WORKSPACE/provisioner/tests/
+        chmod +x test-add-assignee-to-issue.bat.
         test-add-assignee-to-issue.bat
