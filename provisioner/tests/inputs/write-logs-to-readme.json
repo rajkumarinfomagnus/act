@@ -1,0 +1,12 @@
+{
+    "inputs": {
+        "ORG_NAME": "im-sandbox-kalpanarc",
+        "BRANCH_NAME": "main",
+        "REQUESTOR": "KalpanaReddyC",
+        "CREATED_AT": "2021-09-30T10:00:00Z",
+        "ISSUE_URL": "https://github.com/rajkumarinfomagnus/act/issues/1",
+        "ISSUE_ASSIGNEES": "KalpanaReddyC",
+        "ISSUE_JSON": "{\"org_name\":\"im-sandbox-kalpanarc\",\"billing_email\":\"abc@gmail.com\",\"repository\":{\"repo_name\":\"p24\",\"has_wiki\":false,\"has_issues\":true,\"has_projects\":true,\"has_discussions\":true,\"assignees\":\"KalpanaReddyC,RajKumarInfomagnus\"}}",
+        "CREATE_MODIFY": "Modify"
+    }
+}
