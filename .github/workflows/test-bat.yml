@@ -1,0 +1,14 @@
+name: Run bat file
+
+on: [push]
+
+jobs:
+  run-bat:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Run bat file
+      run: |
+        cd $GITHUB_WORKSPACE/provisioner/tests/
+        test-add-assignee-to-issue.bat
