@@ -18,3 +18,25 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Install gh CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install gh 
+
+      - name: Login to GitHub
+        run: |
+          gh auth login --with-token <<< "${{ secrets.ISSUE_OPS_TOKEN }}" 
+
+      - name: Get all labels of an issue
+        id: get-all-labels-issue
+        uses: ./provisioner/actions/get-all-labels-issue
+        with:
+          USER_PAT: ${{ secrets.ISSUE_OPS_TOKEN }}
+          ORG_NAME: ${{ github.event.inputs.ORG_NAME }}
+          REPO_NAME: ${{ github.event.inputs.REPO_NAME }}
+          ISSUE_NUMBER: ${{ github.event.inputs.ISSUE_NUMBER }}
+
+      - name: Print all labels of an issue
+        run: |
+          echo "${{ steps.get-all-labels-issue.outputs.LABEL_RESPONSE }}"

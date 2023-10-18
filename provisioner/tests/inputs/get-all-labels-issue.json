@@ -1,0 +1,7 @@
+{
+    "inputs": {
+        "ORG_NAME": "im-customers",
+        "REPO_NAME": "github-provisioner",
+        "ISSUE_NUMBER": 277
+    }
+}
