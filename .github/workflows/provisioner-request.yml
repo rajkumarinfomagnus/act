@@ -1,0 +1,282 @@
+# Parse submitted provisioner issue
+name: Provisioner Request - Parse
+
+on:
+  issues:
+    types: [opened]
+
+permissions: 
+  id-token: write
+  contents: write
+  pull-requests: write
+
+jobs:
+  process:
+    runs-on: ubuntu-latest
+    if: contains(github.event.issue.labels.*.name, 'provisioner') && github.event.action == 'opened'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3  
+        
+      - name: Get Issue body
+        id: get_issue_body
+        uses: ./provisioner/actions/get-issue-body
+        env:
+          GITHUB_TOKEN: ${{ secrets.ISSUE_OPS_TOKEN }}
+        with:
+          USER_PAT: ${{ secrets.ISSUE_OPS_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ORG_NAME: ${{ github.event.organization.login }}
+          REPO_NAME: ${{ github.event.repository.name }}  
+          
+      - name: Run a script
+        run: |        
+            # write the payload to a file
+            echo '${{ steps.get_issue_body.outputs.RESPONSE }}' > ./extracted-data.json        
+            echo "ISSUE_JSON=$(cat ./extracted-data.json | jq -c .)" >> $GITHUB_ENV            
+
+      # - name: Extract Issue Data
+      #   id: extract-issue-data
+      #   uses: ./provisioner/actions/extract-issue-data
+      #   with:          
+      #     USER_PAT: ${{ secrets.ISSUE_OPS_TOKEN }}                     
+         
+      # - name: Extract parsed data into env variable
+      #   run: echo "ISSUE_JSON=$(cat ./extracted-data.json | jq -c .)" >> $GITHUB_ENV          
+       
+      - name: Add Assignees to Issue
+        id: add-assignees-to-issue
+        if: ${{ fromJson(env.ISSUE_JSON).repository.assignees != null }}
+        uses: ./provisioner/actions/add-assignees-to-issue
+        with: 
+          USER_PAT: ${{ secrets.ISSUE_OPS_TOKEN }}
+          ORG_NAME: ${{ github.event.organization.login }}
+          REPO_NAME: ${{ github.event.repository.name }} 
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          ISSUE_ASSIGNEES: ${{ fromJson(env.ISSUE_JSON).repository.assignees }}
+        env:
+          ISSUE_JSON: ${{ env.ISSUE_JSON }}  
+
+      # - name: Authenticate with GitHub
+      #   uses: ./provisioner/actions/authenticate
+      #   with:
+      #    USER_PAT: ${{ secrets.ISSUE_OPS_TOKEN }}
+      #    HOST_NAME: ${{ vars.hostname }} 
+
+      - name: Initialize mandatory git config
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email noreply@github.com    
+
+      - name: Create new branch name
+        uses: ./provisioner/actions/create-new-branch
+        id: random-branch-name
+        with:
+          REPO_NAME: ${{ github.event.repository.name }}
+      - run: echo "branch-name= ${{ steps.random-branch-name.outputs.BRANCH_NAME }}"
+            
+      - name: Configure Git for Automatic Upstream
+        run: |
+          git config --global push.autoSetupRemote true 
+
+      - name: Check if organization exists
+        id: check-org-exists
+        uses: ./provisioner/actions/check-org-exists
+        with:
+          USER_PAT: ${{ secrets.ISSUE_OPS_TOKEN }}
+          ORG_NAME: ${{ fromJson(env.ISSUE_JSON).org_name }}        
+        env:
+          ISSUE_JSON: ${{ env.ISSUE_JSON }}
+      
+      - name: check Repo exists
+        id: chk-repo-exists
+        uses: ./provisioner/actions/check-repo-exists
+        with:
+          USER_PAT: ${{ secrets.ISSUE_OPS_TOKEN }} 
+          ORG_NAME: ${{ fromJson(env.ISSUE_JSON).org_name }}
+          REPO_NAME: ${{ fromJson(env.ISSUE_JSON).repository.name }}   
+        env:
+          ISSUE_JSON: ${{ env.ISSUE_JSON }} 
+
+      - name: Compare ORG_SETTINGS and issue_json
+        id: compare_org_settings
+        env:
+          ISSUE_JSON: ${{ env.ISSUE_JSON }}
+        uses: ./provisioner/actions/compare-settings-json
+        with:
+          ENTITY_SETTINGS: ./provisioner/settings/defaults/enterprise-org-settings.json
+          ISSUE_JSON: $ISSUE_JSON   
+          ENTITY_TYPE: organization       
+
+      - name: Compare REPO_SETTINGS and issue_json
+        id: compare_repo_settings
+        env:
+          ISSUE_JSON: ${{ env.ISSUE_JSON }}
+        uses: ./provisioner/actions/compare-settings-json
+        with:
+          ENTITY_SETTINGS: ./provisioner/settings/defaults/enterprise-repo-settings.json
+          ISSUE_JSON: $ISSUE_JSON
+          ENTITY_TYPE: repository
+
+      - name: Print status
+        run: |
+            echo ${{ steps.compare_org_settings.outputs.STATUS }}  
+            echo ${{ steps.compare_repo_settings.outputs.STATUS }}  
+          
+      - name: check if it is a new/update Repo, Org
+        id: chk-new-update-repo-org
+        run: |  
+          
+          if [[ "${{ steps.check-org-exists.outputs.ORG_STATUS }}" == "New" ]]; then
+            echo "Org does not exist"
+            echo "provision_org_status=New Organization" >> $GITHUB_ENV
+          elif [[ "${{ steps.compare_org_settings.outputs.STATUS }}" == "Modify" ]]; then
+            echo "provision_org_status=Modify Organization" >> $GITHUB_ENV 
+            echo "Org needs to be modified"            
+          fi
+          if [[ "${{ steps.chk-repo-exists.outputs.REPO_STATUS }}" == "New" ]]; then
+            echo "provision_repo_status=New Repository" >> $GITHUB_ENV
+            echo "Repo does not exist"
+          elif [[ "${{ steps.compare_repo_settings.outputs.STATUS }}" == "Modify" ]]; then
+            echo "provision_repo_status=Modify Repository" >> $GITHUB_ENV              
+          fi  
+
+      - name: Print status
+        env:
+          provision_org_status: ${{ env.provision_org_status }}
+          provision_repo_status: ${{ env.provision_repo_status }}
+        run: |
+          echo $provision_org_status  
+          echo $provision_repo_status
+
+        # This workflow step is responsible for creating a folder and a .json file if they don't exist.
+        # It uses the organization name (or) Repo name for the folder and file names.
+        # It also updates the .json files with the latest data from the issue.
+      - name: Create folder and .yml file if doesn't exist with organization name
+        id: create-folder-and-file
+        env: 
+          ISSUE_JSON: ${{ env.ISSUE_JSON }} 
+          provision_org_status: ${{ env.provision_org_status }}
+          provision_repo_status: ${{ env.provision_repo_status }} 
+        uses: ./provisioner/actions/create-audit-settings-file
+        with:
+          ORG_NAME: ${{ fromJson(env.ISSUE_JSON).org_name }}
+          REPO_NAME: ${{ fromJson(env.ISSUE_JSON).repository.name }}
+          ORG_STATUS: ${{ env.provision_org_status }}
+          REPO_STATUS: ${{ env.provision_repo_status }}      
+            
+      - name: Print Status
+        run: |
+          echo ${{ steps.create-folder-and-file.outputs.ORG_RESPONSE }}   
+          echo ${{ steps.create-folder-and-file.outputs.REPO_RESPONSE }} 
+          
+      - name: Update enforce object
+        if: steps.check-org-exists.outputs.ORG_STATUS == 'New' || steps.chk-repo-exists.outputs.REPO_STATUS == 'New'
+        uses: ./provisioner/actions/append-include-exclude-json
+        env:
+          ISSUE_JSON: ${{ env.ISSUE_JSON }}
+        with:
+          ORG_NAME: ${{ fromJson(env.ISSUE_JSON).org_name }}
+          REPO_NAME: ${{ fromJson(env.ISSUE_JSON).repository.name }}
+          INCLUDE_EXCLUDE_FILE_NAME: ./provisioner/settings/include-exclude.json      
+
+      - name: Update the provisioner/README.md with logs
+        uses: ./provisioner/actions/write-logs-to-readme
+        with:
+          USER_PAT: ${{ secrets.ISSUE_OPS_TOKEN }}
+          ORG_NAME: ${{ fromJson(env.ISSUE_JSON).org_name }}
+          BRANCH_NAME: ${{ steps.random-branch-name.outputs.BRANCH_NAME }}
+          REQUESTOR: ${{ github.event.issue.user.login }}
+          CREATED_AT: ${{ github.event.issue.created_at }}
+          ISSUE_URL: ${{ github.event.issue.url }}  
+          ISSUE_ASSIGNEES: ${{ join(github.event.issue.assignees, ', ') }}        
+          ISSUE_JSON: ${{ env.ISSUE_JSON }}
+          CREATE_MODIFY: ${{ steps.chk-repo-exists.outputs.REPO_STATUS }}
+        env:
+          ISSUE_JSON: ${{ env.ISSUE_JSON }}  
+
+      - name: Commit and push the changes to the new branch
+        run: |   
+         git add .        
+         git commit -m "Append details to README.md and add .json files"
+         git push origin $BRANCH_NAME
+        env:
+          GITHUB_TOKEN: ${{ secrets.ISSUE_OPS_TOKEN }}    
+          BRANCH_NAME: ${{ steps.random-branch-name.outputs.BRANCH_NAME }}
+       
+      - name: Form "provisioning based" Label to Issue   
+        id: form-labels     
+        run: |         
+            declare -a issue_labels
+            if [ "${{ env.provision_org_status }}" == "New Organization" ]; then
+              issue_labels+=('NewOrganization')
+            elif [ "${{ env.provision_org_status }}" == "Modify Organization" ]; then
+              issue_labels+=('ModifyOrganization')
+            fi
+            if [ "${{ env.provision_repo_status }}" == "New Repository" ]; then
+              issue_labels+=('NewRepository')
+            elif [ "${{ env.provision_repo_status }}" == "Modify Repository" ]; then
+              issue_labels+=('ModifyRepository')
+            fi
+
+            # Join the array elements with a comma
+            issue_labels_csv=$(IFS=, ; echo "${issue_labels[*]}")           
+
+            echo "::set-output name=labels::$issue_labels_csv"
+        env:
+          provision_org_status: ${{ env.provision_org_status }}
+          provision_repo_status: ${{ env.provision_repo_status }}
+          ISSUE_JSON: ${{ env.ISSUE_JSON }}
+
+      - name: Add "provisioning based" Label to Issue
+        uses: ./provisioner/actions/add-label-to-issue
+        with:
+          USER_PAT: ${{ secrets.ISSUE_OPS_TOKEN }}
+          ORG_NAME: ${{ github.event.organization.login }}
+          REPO_NAME: ${{ github.event.repository.name }}
+          LABELS: ${{ steps.form-labels.outputs.labels }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}    
+
+      - name: Create PR
+        id: create-pullrequest
+        if: ${{ steps.chk-repo-exists.outputs.REPO_STATUS != 'Error' }} || ${{ steps.chk-repo-exists.outputs.ORG_STATUS != 'Error' }}
+        uses: ./provisioner/actions/create-pullrequest
+        with:
+          USER_PAT: ${{ secrets.ISSUE_OPS_TOKEN }}
+          ORG_NAME: ${{ github.event.organization.login }}
+          REPO_NAME: ${{ github.event.repository.name }}
+          PR_TITLE: 'Automated #${{ github.event.issue.number }}'
+          PR_BODY: |
+              ### Request details
+              <b>${{ steps.chk-repo-exists.outputs.REPO_STATUS }} repository:</b> ${{ fromJson(env.ISSUE_JSON).repository.name }}
+
+              <b>Below settings will be applied:</b>
+              ${{ env.ISSUE_JSON }}
+
+              <b>Please find detailed information in this Issue link</b>: #${{ github.event.issue.number }}
+
+          PR_HEAD_BRANCH: ${{ steps.random-branch-name.outputs.BRANCH_NAME }}
+          PR_MAIN_BRANCH: 'main'
+        env:
+          ISSUE_JSON: ${{ env.ISSUE_JSON }} 
+          
+      - name: add comment to an issue
+        uses: ./provisioner/actions/add-comment-to-issue
+        with: 
+          USER_PAT: ${{ secrets.ISSUE_OPS_TOKEN }}
+          ORG_NAME: ${{ github.event.organization.login }}
+          REPO_NAME: ${{ github.event.repository.name }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
+          COMMENT_BODY: | 
+            ### Debug Information
+            <b>${{ steps.chk-repo-exists.outputs.REPO_STATUS }} repository:</b> ${{ fromJson(env.ISSUE_JSON).repository.name }}
+            
+            #Do not change below format as it has dependency in the next steps
+            Branch: ${{ steps.random-branch-name.outputs.BRANCH_NAME }} is created
+
+            <b>Below settings will be applied: </b> ${{ fromJson(env.ISSUE_JSON).repository.name }}
+            ${{ env.ISSUE_JSON }}
+
+            <b>Pull Request URL:</b> ${{ steps.create-pullrequest.outputs.PR_URL }}
+        env:
+          ISSUE_JSON: ${{ env.ISSUE_JSON }} 

@@ -1,0 +1,49 @@
+name: test-write-logs-to-readme
+
+on:
+  workflow_dispatch:
+    inputs:
+      ORG_NAME:
+        description: Enter the ORG_NAME
+        required: true
+      BRANCH_NAME:
+        description: Enter the BRANCH_NAME
+        required: true      
+      REQUESTOR:
+        description: Enter Requestor name
+        required: true    
+      CREATED_AT:
+        description: Enter the CREATED_AT date
+        required: true
+      ISSUE_URL:
+        description: Enter the ISSUE_URL
+        required: true
+      ISSUE_ASSIGNEES:
+        description: Enter the ASSIGNEES
+        required: true
+      ISSUE_JSON:
+        description: Enter the ISSUE_JSON
+        required: true   
+      CREATE_MODIFY:
+        description: Enter the CREATE_MODIFY
+        required: true  
+jobs:
+  create-organization:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Update the provisioner/README.md with logs
+        uses: ./provisioner/actions/write-logs-to-readme
+        with:
+          USER_PAT: ${{ secrets.ISSUE_OPS_TOKEN }}
+          BRANCH_NAME: ${{ github.event.inputs.BRANCH_NAME }}
+          REQUESTOR: ${{ github.event.inputs.REQUESTOR }}
+          CREATED_AT: ${{ github.event.workflow.data.created_at }}
+          ISSUE_URL: ${{ github.event.inputs.ISSUE_URL }} 
+          ISSUE_ASSIGNEES: ${{ github.event.inputs.ISSUE_ASSIGNEES }}        
+          ISSUE_JSON: ${{ github.event.inputs.ISSUE_JSON }}
+          CREATE_MODIFY: ${{ github.event.inputs.CREATE_MODIFY }}
+        env:
+          ISSUE_JSON: ${{ env.ISSUE_JSON }}    

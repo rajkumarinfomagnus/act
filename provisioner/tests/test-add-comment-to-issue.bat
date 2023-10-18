@@ -1,0 +1,1 @@
+act -W .github/workflows/test-add-comment-to-issue.yml -e provisioner/tests/inputs/add-comment-issue.json --quiet --secret-file ./test.secrets

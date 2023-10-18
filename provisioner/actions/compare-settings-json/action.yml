@@ -1,0 +1,43 @@
+name: Compare ENTITY_SETTINGS and issue_json
+description: 'Compares ENTITY_SETTINGS and issue_json'
+
+inputs:
+  ENTITY_SETTINGS:
+    description: 'Enter the ENTITY_SETTINGS'
+    required: true
+  ISSUE_JSON:
+    description: 'Enter the ISSUE_JSON'
+    required: true
+  ENTITY_TYPE:
+    description: 'Enter the ENTITY_TYPE'
+    required: true  
+outputs:
+  STATUS:
+    description: "entity_status"
+    value: ${{ steps.compare_entity_settings.outputs.entity_status }}
+runs:
+    using: composite
+    steps:      
+        - name: Compare ENTITY_SETTINGS and issue_json        
+          id: compare_entity_settings
+          run: |            
+            if [[ "${{ inputs.ENTITY_TYPE }}" == "organization" ]]; then
+              entity_settings=$(jq '.organization | .mandatory + .optional' ${{ inputs.ENTITY_SETTINGS }})
+              issue_json=$(jq 'del(.repository, .teams)' <<< "${{ inputs.ISSUE_JSON }}")
+            elif [[ "${{ inputs.ENTITY_TYPE }}" == "repository" ]]; then
+              entity_settings=$(jq '.repository | .mandatory + .optional' ${{ inputs.ENTITY_SETTINGS }})
+              issue_json=$(jq '.repository' <<< "${{ inputs.ISSUE_JSON }}")
+            fi
+            
+            echo "entity_settings: $entity_settings"
+            echo "issue_json: $issue_json"
+
+            entity_status="No"
+            for key in $(jq 'keys[]' <<< "$issue_json"); do
+              if jq -e ". | has($key)" <<< "$entity_settings" > /dev/null; then
+                entity_status="Modify"
+                break
+              fi
+            done
+            echo "::set-output name=entity_status::$entity_status"
+          shell: bash    

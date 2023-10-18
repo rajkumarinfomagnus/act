@@ -1,0 +1,83 @@
+name: Create folder and settings file based on inputs
+description: 'Create folder and settings file for Organization(s) and Repo(s) based on inputs'
+
+inputs:
+  ORG_NAME:
+    description: 'Name of the Organization'
+    required: true
+  REPO_NAME:
+    description: 'Name of the Repo'
+    required: true
+  ORG_STATUS:
+    description: 'Status of the Organization'
+    required: true
+  REPO_STATUS:
+    description: 'Status of the Repo'
+    required: true
+
+outputs:
+  ORG_RESPONSE:
+    description: 'Status of the Organization and Repo'
+    value: ${{ steps.create-settings-file.outputs.org_response }}
+  REPO_RESPONSE:
+    description: 'Status of the Organization and Repo'
+    value: ${{ steps.create-settings-file.outputs.repo_response }}
+
+runs:
+  using: composite
+  steps:
+    - name: Create settings file
+      id: create-settings-file
+      run: |
+            # Create a directory with the organization name if it doesn't exist
+            dir="./provisioner/settings/${{ inputs.ORG_NAME }}"
+            if [[ ! -d $dir ]]; then
+              mkdir -p $dir    
+              touch $dir/${{ inputs.ORG_NAME }}.md          
+            fi
+            
+            # If provision_org_status is not null, update the organization's .json file
+            # This involves checking if the file exists, extracting data from the existing file,
+            # merging the extracted data with the new data, and then writing the merged data back to the file.
+
+            if [[ -n "${{ inputs.ORG_STATUS }}" ]]; then
+              echo "provision_org_status is not null"
+              org_file_exists="./provisioner/settings/${{ inputs.ORG_NAME }}/${{ inputs.ORG_NAME }}.json"
+              if [[ -f $org_file_exists ]]; then
+                extracted_data=$(jq 'del(.repository)' ./extracted-data.json)
+                echo "$extracted_data" > ./org-data.json
+                merged_json=$(jq -s '.[0] * .[1]' $org_file_exists ./org-data.json)
+                echo "$merged_json" > $org_file_exists
+                echo "::set-output name=org_response::Updated org settings file created"
+              else
+                touch $org_file_exists
+                extracted_data=$(jq 'del(.repository)' ./extracted-data.json)
+                echo "$extracted_data" > ./org-data.json
+                cat ./org-data.json >> $org_file_exists
+                echo "::set-output name=org_response::New org settings file created"
+              fi
+            fi
+
+            # If provision_repo_status is not null, update the repository's .json file
+            # This involves checking if the file exists, extracting data from the existing file,
+            # merging the extracted data with the new data, and then writing the merged data back to the file.
+
+            if [[ -n "${{ inputs.REPO_STATUS }}" ]]; then
+              echo "provision_repo_status is not null"
+              repo_file_exists="./provisioner/settings/${{ inputs.ORG_NAME }}/${{ inputs.REPO_NAME }}.json"
+              if [[ -f $repo_file_exists ]]; then
+                  extracted_data=$(jq '.repository' ./extracted-data.json)
+                  echo "$extracted_data" > ./repo-data.json
+                  merged_json=$(jq -s '.[0] * .[1]' $repo_file_exists ./repo-data.json)
+                  echo "$merged_json" > $repo_file_exists
+                  echo "::set-output name=repo_response::Updated repo settings file created"
+              else
+                  touch $repo_file_exists
+                  extracted_data=$(jq '.repository' ./extracted-data.json)
+                  echo "$extracted_data" > ./repo-data.json
+                  cat ./repo-data.json >> $repo_file_exists
+                  echo "::set-output name=repo_response::New repo settings file created"
+              fi
+            fi  
+
+      shell: bash

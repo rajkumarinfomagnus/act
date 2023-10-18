@@ -1,0 +1,39 @@
+name: check if Repo exists
+description: 'Check if Repo exists'
+inputs:
+  USER_PAT:
+    description: 'Enter Personal Access Token'
+    required: true
+  ORG_NAME:
+    description: 'Enter organization name'
+    required: true
+  REPO_NAME:
+    description: 'Enter name of repository'
+    required: true
+outputs:
+  REPO_STATUS:
+    description: 'Repository exists or not'
+    value: ${{ steps.check-repo-exists.outputs.repo_status }}
+
+runs:
+  using: composite
+  steps:
+    - name: check if Repo exists
+      id: check-repo-exists
+      run: |                
+           repo_exists_response=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer ${{ inputs.USER_PAT }}" "https://api.github.com/repos/${{ inputs.ORG_NAME }}/${{ inputs.REPO_NAME }}")
+
+            echo "Response: $repo_exists_response"
+            if [[ $repo_exists_response == "200" ]]; then
+              echo "Repository ${{ inputs.REPO_NAME }} exists."
+              echo "repo_status=Modify" >> $GITHUB_OUTPUT
+            elif [[ $repo_exists_response == "404" ]]; then
+              echo "Repository ${{ inputs.REPO_NAME }} does not exist."
+              echo "repo_status=New" >> $GITHUB_OUTPUT
+            else
+              echo "An error occurred while checking the repository: HTTP $repo_exists_response"
+              echo "repo_status=Error" >> $GITHUB_OUTPUT
+            fi
+      shell: bash 
+
+       

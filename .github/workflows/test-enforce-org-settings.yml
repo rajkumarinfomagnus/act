@@ -1,0 +1,14 @@
+name: test-enforce-org-settings
+
+on:
+  workflow_dispatch:
+    inputs:
+      ORG_NAME:
+        description: 'Organization Name'
+        required: true
+jobs:
+  enforce-org-settings:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3

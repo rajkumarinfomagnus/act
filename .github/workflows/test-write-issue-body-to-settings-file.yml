@@ -1,0 +1,126 @@
+name: test-audit-org
+
+on:
+  workflow_dispatch:
+    inputs:
+      IssueNumber: 
+        description: 'Issue number'
+        default: 229
+
+jobs:
+  process-settings:
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout
+          uses: actions/checkout@v3 
+
+        - name: Get Issue body
+          id: get_issue_body
+          uses: ./provisioner/actions/get-issue-body
+          env:
+            GITHUB_TOKEN: ${{ secrets.ISSUE_OPS_TOKEN }}
+          with:
+            USER_PAT: ${{ secrets.ISSUE_OPS_TOKEN }}
+            ISSUE_NUMBER: ${{ github.event.inputs.IssueNumber }}
+            ORG_NAME: ${{ github.event.organization.login }}
+            REPO_NAME: ${{ github.event.repository.name }}         
+
+        - name: Run a script
+          run: |        
+            # write the payload to a file
+            echo '${{ steps.get_issue_body.outputs.RESPONSE }}' > ./extracted-data.json        
+            cat ./extracted-data.json
+                
+        - name: Extract parsed data into env variable
+          run: echo "ISSUE_JSON=$(cat ./extracted-data.json | jq -c .)" >> $GITHUB_ENV      
+        
+        - name: Compare ORG_SETTINGS and issue_json
+          id: compare_org_settings
+          env:
+            ISSUE_JSON: ${{ env.ISSUE_JSON }}
+          uses: ./provisioner/actions/compare-settings-json
+          with:
+            ENTITY_SETTINGS: ./provisioner/settings/defaults/enterprise-org-settings.json
+            ISSUE_JSON: $ISSUE_JSON   
+            ENTITY_TYPE: organization       
+
+        - name: Compare REPO_SETTINGS and issue_json
+          id: compare_repo_settings
+          env:
+            ISSUE_JSON: ${{ env.ISSUE_JSON }}
+          uses: ./provisioner/actions/compare-settings-json
+          with:
+            ENTITY_SETTINGS: ./provisioner/settings/defaults/enterprise-repo-settings.json
+            ISSUE_JSON: $ISSUE_JSON
+            ENTITY_TYPE: repository
+
+        - name: Print status
+          run: |
+            echo ${{ steps.compare_org_settings.outputs.STATUS }}  
+            echo ${{ steps.compare_repo_settings.outputs.STATUS }}  
+            
+        - name: check if it is a new/update Repo, Org
+          id: chk-new-update-repo-org
+          run: |  
+            
+            if [[ "456" == "New" ]]; then
+              echo "Org does not exist"
+              echo "provision_org_status=New Organization" >> $GITHUB_ENV
+            elif [[ "${{ steps.compare_org_settings.outputs.STATUS }}" == "Modify" ]]; then
+              echo "provision_org_status=Modify Organization" >> $GITHUB_ENV 
+              echo "Org needs to be modified"            
+            fi
+            if [[ "123" == "New" ]]; then
+              echo "provision_repo_status=New Repository" >> $GITHUB_ENV
+              echo "Repo does not exist"
+            elif [[ "${{ steps.compare_repo_settings.outputs.STATUS }}" == "Modify" ]]; then
+              echo "provision_repo_status=Modify Repository" >> $GITHUB_ENV              
+            fi           
+
+        - name: Print status
+          env:
+            provision_org_status: ${{ env.provision_org_status }}
+            provision_repo_status: ${{ env.provision_repo_status }}
+          run: |
+            echo $provision_org_status  
+            echo $provision_repo_status
+
+        # This workflow step is responsible for creating a folder and a .json file if they don't exist.
+        # It uses the organization name (or) Repo name for the folder and file names.
+        # It also updates the .json files with the latest data from the issue.
+        - name: Create folder and .yml file if doesn't exist with organization name
+          id: create-folder-and-file
+          env: 
+            ISSUE_JSON: ${{ env.ISSUE_JSON }} 
+            provision_org_status: ${{ env.provision_org_status }}
+            provision_repo_status: ${{ env.provision_repo_status }} 
+          uses: ./provisioner/actions/create-audit-settings-file
+          with:
+            ORG_NAME: ${{ fromJson(env.ISSUE_JSON).org_name }}
+            REPO_NAME: ${{ fromJson(env.ISSUE_JSON).repository.repo_name }}
+            ORG_STATUS: ${{ env.provision_org_status }}
+            REPO_STATUS: ${{ env.provision_repo_status }}      
+            
+        - name: Print Status
+          run: |
+           echo ${{ steps.create-folder-and-file.outputs.ORG_RESPONSE }}   
+           echo ${{ steps.create-folder-and-file.outputs.REPO_RESPONSE }} 
+              
+        - name: Initialize mandatory git config
+          run: |
+            git config user.name "GitHub Actions"
+            git config user.email noreply@github.com 
+              
+        - name: Configure Git for Automatic Upstream
+          run: |
+            git config --global push.autoSetupRemote true 
+
+        - name: Commit and push the changes to the new branch
+          env:
+            ISSUE_JSON: ${{ env.ISSUE_JSON }}
+            GITHUB_TOKEN: ${{ secrets.ISSUE_OPS_TOKEN }}    
+            BRANCH_NAME: main 
+          run: |   
+            git add .
+            git commit -m "Created or updated settings file"
+            git push origin $BRANCH_NAME    

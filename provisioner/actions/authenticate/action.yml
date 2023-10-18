@@ -1,0 +1,25 @@
+name: Authenticate with GitHub
+description: Authenticate with GitHub using the gh CLI.
+
+inputs:  
+  USER_PAT:
+    description: 'Enter the user PAT'
+    required: true 
+  HOST_NAME:
+    description: 'Enter the hostname'
+    default: 'github.com'
+
+runs:
+  using: composite
+  steps:
+      - name: Authenticate with GitHub GHEC
+        env:
+          USER_PAT: ${{ inputs.USER_PAT }}
+        run: |
+          echo "${{ inputs.USER_PAT  }}" | gh auth login --with-token
+          # if [[ inputs.HOST_NAME =~ .*github.com ]]; then
+          #   echo "${{ inputs.USER_PAT  }}" | gh auth login --with-token
+          # else
+          #   run: echo "${{ inputs.USER_PAT  }}" | gh auth login -h "${{ inputs.HOST_NAME }}" --with-token
+          # fi
+        shell: bash     

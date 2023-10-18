@@ -1,0 +1,36 @@
+name: Add User to Enterprise Server
+description: Add User to Enterprise Server
+
+inputs:
+  USERNAME:
+    description: 'Enter handle name of user'
+    required: true
+  EMAIL:
+    description: 'Enter email of user'
+    required: true
+  USER_TOKEN:
+    description: 'Enter Personal access token of user'
+    required: true    
+  HOSTNAME:
+    description: 'Enter the hostname'
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Authenticate with GitHub
+      run: echo "${{ inputs.USER_TOKEN }}" | gh auth login -h "${{ inputs.HOSTNAME }}" --with-token
+      shell: bash
+
+    - name: Adding user to enterprise server
+      run: |
+          gh api \
+          --method POST \
+          -H "Accept: application/vnd.github+json" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          --hostname "${{ inputs.HOSTNAME }}" \
+          /admin/users \
+          -f "login=${{ inputs.USERNAME }}" \
+          -f "email=${{ inputs.EMAIL }}"
+      shell: bash    
+

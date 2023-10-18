@@ -1,0 +1,60 @@
+name: 'Create Provisioner Pull Request'
+description: 'Creates a pull request for provisioning Github objects'
+inputs:  
+  USER_PAT:
+    description: 'Enter the USER_PAT'
+    required: true
+  ORG_NAME:
+    description: 'Enter the ORG_NAME'
+    required: true
+  REPO_NAME:
+    description: 'Enter the REPO_NAME'
+    required: true  
+  PR_TITLE:
+    description: 'Enter the PR_TITLE'
+    required: true
+  PR_BODY:
+    description: 'Enter the PR_BODY'
+    default: 'Please pull these awesome changes in!'
+  PR_HEAD_BRANCH:
+    description: 'Enter the PR_HEAD_BRANCH'
+    required: true
+  PR_MAIN_BRANCH:
+    description: 'Enter the PR_MAIN_BRANCH'
+    required: true
+    
+outputs:
+  PR_URL:
+    description: "pull request url"
+    value: ${{ steps.pr_creation.outputs.URL }}
+
+runs:
+  using: composite
+  steps:
+    - name: create PR
+      id: pr_creation
+      env:
+          GH_TOKEN: ${{ github.token }} 
+      run: |
+          pull_request=$(gh api \
+            --method POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            /repos/${{ inputs.ORG_NAME }}/${{ inputs.REPO_NAME }}/pulls \
+            -f title='${{ inputs.PR_TITLE }}' \
+          -f body='${{ inputs.PR_BODY }}' \
+          -f head='${{ inputs.PR_HEAD_BRANCH }}' \
+          -f base='${{ inputs.PR_MAIN_BRANCH }}')
+
+          echo "$pull_request" > pull_request.json
+          cat pull_request.json
+          pr_url=$(echo "$pull_request" | jq -r '.url')
+          echo "$pr_url"
+          echo "::set-output name=URL::$pr_url"
+      shell: bash  
+
+    - name: upload output as devicefarm:ListArtifacts
+      uses: actions/upload-artifact@v2
+      with:
+          name: pull_request
+          path: ./pull_request.json  

@@ -1,0 +1,30 @@
+name: 'Create a new branch'
+description: 'Creates a branch in Github'
+
+inputs:
+  USER_PAT:
+    description: 'Enter the USER_PAT'
+    required: true
+  REPO_NAME:
+    description: 'Enter name of repository'
+    required: true
+        
+outputs: 
+  BRANCH_NAME:
+    description: "Random Numbers"
+    value: ${{ steps.random-branch-name.outputs.New_BRANCH_NAME }}
+  
+runs:
+    using: composite
+    steps:    
+      - name: Generate Random Branch Name
+        id: random-branch-name
+        run: |
+          BRANCH_NAME="automated/${{ inputs.REPO_NAME }}-$(date +%s)" 
+          echo "$BRANCH_NAME"        
+          git checkout -b $BRANCH_NAME
+          echo "::set-output name=New_BRANCH_NAME::$BRANCH_NAME"
+        env:
+          GITHUB_TOKEN: ${{ inputs.USER_PAT }}           
+
+        shell: bash  

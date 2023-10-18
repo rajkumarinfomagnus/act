@@ -1,0 +1,10 @@
+{
+    "inputs": {
+        "ORG_NAME": "im-sandbox-phanirb",
+        "REPO_NAME": "logs-2",
+        "PR_TITLE": "testing",
+        "PR_BODY": "for testing arc",
+        "PR_HEAD_BRANCH": "feature",
+        "PR_MAIN_BRANCH": "main"
+    }
+}

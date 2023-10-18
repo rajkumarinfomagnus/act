@@ -1,0 +1,21 @@
+name: test-check-org-exists
+
+on:
+  workflow_dispatch:
+    inputs:
+      ORG_NAME:
+        description: 'Organization Name'
+        required: true     
+jobs:
+  check-org-exists:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Check if organization exists
+        id: check-org-exists
+        uses: ./provisioner/actions/check-org-exists
+        with:
+          USER_PAT: ${{ secrets.ISSUE_OPS_TOKEN }}
+          ORG_NAME: ${{ github.event.inputs.ORG_NAME }}

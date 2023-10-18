@@ -1,0 +1,23 @@
+name: test-create-audit-settings-file
+
+on:
+  workflow_dispatch:
+    inputs:
+      ORG_NAME:
+        description: 'Name of the Organization'
+        required: true
+      REPO_NAME:
+        description: 'Name of the Repo'
+        required: true
+      ORG_STATUS:
+        description: 'Status of the Organization'
+        required: true
+      REPO_STATUS:
+        description: 'Status of the Repo'
+        required: true
+jobs:
+  create-audit-settings-file:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3

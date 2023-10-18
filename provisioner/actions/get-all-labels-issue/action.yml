@@ -1,0 +1,37 @@
+name: Get Label for an Issue
+description: Add Label to repository
+inputs:
+  USER_PAT:
+    description: 'Enter the Personal Access Token'
+    required: true
+  ORG_NAME:
+    description: 'Organization name'
+    required: true  
+  REPO_NAME:
+    description: 'Repository name'
+    required: true   
+  ISSUE_NUMBER:
+    description: 'Issue Number'
+    required: true
+    
+  
+outputs:
+  LABEL_RESPONSE:
+    description: 'Response from GitHub API'
+    value: ${{ steps.get-all-labels-issue.outputs.response }}
+runs:
+  using: composite
+  steps:
+    - name: Check if label exists      
+      id: get-all-labels-issue
+      env:
+        GITHUB_TOKEN: ${{ inputs.USER_PAT }}
+      run: |
+        response=$(gh api \
+          -H "Accept: application/vnd.github+json" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          /repos/${{ inputs.ORG_NAME }}/${{ inputs.REPO_NAME }}/issues/${{ inputs.ISSUE_NUMBER }}/labels)
+        issue_labels=$(echo "$response" | jq -c '[.[].name]' | base64)
+        echo "$issue_labels"
+        echo "response=$issue_labels" >> $GITHUB_OUTPUT
+      shell: bash

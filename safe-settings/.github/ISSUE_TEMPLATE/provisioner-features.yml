@@ -1,0 +1,47 @@
+# GitHub Enterprise Documentation:
+# - https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/syntax-for-issue-forms
+# - https://docs.github.com/en/communities/using-templates-to-encourage-useful-issues-and-pull-requests/syntax-for-githubs-form-schema
+#
+name: Enable / Disable Repo Features
+description: Enable / disable wiki, discussions, issues for a repo 
+labels:
+  - administration
+  - createrepo
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Need repository created?
+
+        Fill out this form, get a `/lgtm` comment, and you're golden!
+  - type: input
+    id: repository-name
+    attributes:
+      label: Repository name
+      description: Which repository are we updating?
+    validations:
+      required: true
+  - type: checkboxes
+    id: wiki 
+    attributes:
+      label: Enable Wiki?
+      description: Do you want to enable Wikis for this repo?
+      options:
+        - label: Enable Wiki
+          required: true
+  - type: checkboxes
+    id: discussions
+    attributes:
+      label: Enable Discussions?
+      description: Do you want to enable Discussions for this repo?
+      options:
+        - label: Enable Discussions
+          required: true
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Enable Issues?
+      description: Do you want to enable Issues for this repo?
+      options:
+        - label: Enable Issues
+          required: true

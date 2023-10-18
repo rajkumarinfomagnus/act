@@ -1,0 +1,44 @@
+name: Get Issue Body
+description: Get the body of the issue
+inputs:
+  USER_PAT:
+    description: 'Enter the Personal Access Token'
+    required: true
+  ORG_NAME:
+    description: 'Organization name'
+    required: true  
+  REPO_NAME:
+    description: 'Repository name'
+    required: true   
+  ISSUE_NUMBER:
+    description: 'Issue Number'
+    required: true
+      
+outputs:
+  RESPONSE:
+    description: 'Response from GitHub API'
+    value: ${{ steps.get-issue-body.outputs.response }}
+
+runs:
+  using: composite
+  steps:
+    - name: Get Issue body
+      id: get-issue-body
+      env:
+          GITHUB_TOKEN: ${{ inputs.USER_PAT }}
+      run: |
+          body=$(gh api repos/${{ inputs.ORG_NAME }}/${{ inputs.REPO_NAME }}/issues/${{ inputs.ISSUE_NUMBER }} | jq -r '.body')
+          # Remove the line containing "### Repository configuration" and all lines before it
+          body=$(echo "$body" | sed -n '/### Repository configuration/,$p' | sed '1d') 
+          echo $body | jq empty
+          if [ $? -eq 0 ]; then
+              body=$(echo $body | jq -c . | sed -r 's/\[([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})\]\(mailto:\1\)/\1/g')
+              echo "body: $body"
+              echo "::set-output name=response::$body"
+          else
+              echo "Invalid JSON"
+          fi  
+      shell: bash     
+     
+
+ 

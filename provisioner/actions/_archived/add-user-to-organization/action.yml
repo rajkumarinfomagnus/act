@@ -1,0 +1,76 @@
+name: Add User to Organization
+description: Add User to Organization
+
+inputs:
+  ORG:
+    description: 'Enter organization name'
+    required: true
+  USERNAME:
+    description: 'Enter handle name of user'
+    required: true
+  ROLE:
+    description: 'Enter role of user'
+    required: true
+  TOKEN:
+    description: 'Enter Personal access token of user'
+    required: true  
+  HOSTNAME:
+    description: 'Enter the hostname'
+    required: true
+
+outputs:
+  organization_created:
+    description: 'Indicates if the organization was successfully created'
+    value: ${{ steps.adding_user_organization.outputs.organization_created }}
+
+runs:
+  using: composite
+  steps:
+    - name: Authenticate with GitHub
+      id: adding_user_organization
+      run: |
+        echo "${{ inputs.TOKEN }}" | gh auth login --hostname "${{ inputs.HOSTNAME }}" --with-token
+        
+        # Check if the organization already exists
+        response=$(gh api -H "Accept: application/vnd.github.v3+json" --hostname "${{ inputs.HOSTNAME }}" /orgs/${{ inputs.ORG }})
+        echo "$response"
+        if [ "$response" == "Not Found" ]; then
+          echo "Organization doesn't exist."
+          exit 1  # Exit with an error code
+        else
+          # Check if the User handle already exists at enterprise level
+          user_response=$(curl -s -H "Authorization: token ${{ inputs.TOKEN }}" "https://${{ inputs.HOSTNAME }}/api/v3/users/${{ inputs.USERNAME }}")
+          user_exists=$(echo "$user_response" | jq -r '.login')
+
+          if [ -n "$user_exists" ]; then
+            echo "Userhandle name exists."
+            
+            # Check if the User is already a member of the organization
+            org_members_response=$(gh api -H "Accept: application/vnd.github.v3+json" --hostname "${{ inputs.HOSTNAME }}" /orgs/${{ inputs.ORG }}/members)
+            org_members=$(echo "$org_members_response" | jq -r '.[].login')   
+            echo "$org_members"
+            user_already_member="false"
+            for member in ${org_members[@]}; do
+              if [ "$member" == "${{ inputs.USERNAME }}" ]; then
+                user_already_member="true"
+                break
+              fi
+            done
+            
+            if [ "$user_already_member" == "true" ]; then
+              echo "User is already a member of the organization."
+              exit 3 # Exit with an error code
+            else
+              gh api \
+                --method PUT \
+                -H "Accept: application/vnd.github.v3+json" \
+                --hostname "${{ inputs.HOSTNAME }}" \
+                "/orgs/${{ inputs.ORG }}/memberships/${{ inputs.USERNAME }}" \
+                -f "role=${{ inputs.ROLE }}"
+            fi
+          else
+            echo "Userhandle name does not exist."
+            exit 2  # Exit with an error code
+          fi
+        fi
+      shell: bash

@@ -1,0 +1,40 @@
+name: test-audit-enforce-entity
+
+on:
+  workflow_dispatch:
+    inputs:
+      ORG_NAME:
+        description: 'Organization Name'
+        required: true
+      REPO_NAME:
+        description: 'Repository Name'
+        required: true    
+
+jobs:
+  test-mechanism-audit-enforce-entity:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Initialize mandatory git config
+      run: |
+          git config user.name "GitHub Actions"
+          git config user.email noreply@github.com 
+              
+    - name: Configure Git for Automatic Upstream
+      run: |
+        git config --global push.autoSetupRemote true 
+
+    - name: Update enforce object
+      uses: ./provisioner/actions/append-include-exclude-json
+      with:
+        ORG_NAME: ${{ github.event.inputs.ORG_NAME }}
+        REPO_NAME: ${{ github.event.inputs.REPO_NAME }}
+        INCLUDE_EXCLUDE_FILE_NAME: ./provisioner/settings/include-exclude.json
+       
+    - name: Commit changes
+      run: |
+         git add .
+         git commit -m "Created or updated settings file"
+         git push origin $BRANCH_NAME     

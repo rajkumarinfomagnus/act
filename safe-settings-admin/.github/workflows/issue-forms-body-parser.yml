@@ -1,0 +1,106 @@
+name: Issue inputs, create branch and push changes
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  id-token: write
+  contents: write
+  pull-requests: write
+
+jobs:
+  process:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Get issue number
+        id: issue_number
+        run: |
+          echo "Issue number is ${{ github.event.issue.number }}"
+          echo "::set-output name=issue_number::${{ github.event.issue.number }}"
+
+      - name: Issue Forms Body Parser
+        id: parse
+        uses: zentered/issue-forms-body-parser@v2.0.0
+
+      - run: |
+         echo '${{ steps.parse.outputs.data }}' > ./scripts/issue.json
+         cat ./scripts/issue.json 
+
+      - run: node ./scripts/parse-json.js
+      - run: |    
+         ls -la     
+         cat ./extracted-data.json
+
+      - name: Initialize mandatory git config
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email noreply@github.com           
+      
+      - name: Install dependencies
+        run: npm install js-yaml
+      
+      - name: Convert JSON to YAML
+        id: read_repo_settings
+        run: |
+          node ./scripts/json-to-yaml.js
+
+      - name: Generate Random Branch Name
+        id: random-branch-name
+        run: |
+          BRANCH_NAME="automated/branch-$(date +%s)"         
+          echo "::set-output name=NEW_BRANCH_NAME::$BRANCH_NAME" 
+          echo "Generated BRANCH_NAME: $NEW_BRANCH_NAME"
+  
+      - name: Create New Branch
+        run: |
+         git checkout -b ${{ steps.random-branch-name.outputs.NEW_BRANCH_NAME }}       
+
+      - name: Change permissions of repo-settings.yml
+        run: |
+          chmod 777 $GITHUB_WORKSPACE/.github/repos/repo-settings.yml
+          ls -l $GITHUB_WORKSPACE/.github/repos/repo-settings.yml
+          cat $GITHUB_WORKSPACE/repo-settings.yml   
+
+      - name: Replace the content of the file in .github/repos if it exists
+        run: |
+          echo "Contents of $GITHUB_WORKSPACE/.github/repos directory:"
+          ls -l $GITHUB_WORKSPACE/.github/repos
+          # Check if the file exists in the destination directory
+          if [ -f $GITHUB_WORKSPACE/.github/repos/repo-settings.yml ]; then
+            echo "File exists in .github/repos directory"
+            cat $GITHUB_WORKSPACE/repo-settings.yml > $GITHUB_WORKSPACE/.github/repos/repo-settings.yml
+          else
+            echo "File does not exist in .github/repos directory"
+            cp $GITHUB_WORKSPACE/repo-settings.yml $GITHUB_WORKSPACE/.github/repos/
+          fi   
+        env:
+          ACTIONS_RUNNER_DEBUG: 1                     
+        
+      - name: Configure Git for Automatic Upstream
+        run: |
+          git config --global push.autoSetupRemote true  
+
+      - name: Commit and push the changes to the new branch
+        run: |    
+         git add .github/repos/repo-settings.yml  
+         git commit -m "Add yaml file(s)"
+         git push origin $BRANCH_NAME
+         
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}    
+          BRANCH_NAME: ${{ steps.random-branch-name.outputs.NEW_BRANCH_NAME }}
+         
+      - name: Create Pull Request        
+        uses: peter-evans/create-pull-request@v3
+        with:
+            token: ${{ secrets.GITHUB_TOKEN }}
+            branch: ${{ steps.random-branch-name.outputs.NEW_BRANCH_NAME }}
+            base: main            
+            title: "Feature: Closes #${{ steps.issue_number.outputs.issue_number }}"
+            body: "Repo Settings:\n${{ steps.read_repo_settings.outputs.repo_settings }}"            
+       
+        

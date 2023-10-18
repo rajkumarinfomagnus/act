@@ -1,0 +1,41 @@
+name: Check if Organization exists
+description: 'Check if Organization exists'
+inputs:
+  USER_PAT:
+    description: 'Enter Personal Access Token'
+    required: true
+  ORG_NAME:
+    description: 'Enter organization name'
+    required: true
+outputs:
+  ORG_STATUS:
+    description: 'Organization exists or not'
+    value: ${{ steps.check-org-exists.outputs.org_status }}
+  ORG_EXISTS:
+    description: 'Organization exists or not'
+    value: ${{ steps.check-org-exists.outputs.org_status }}
+
+runs:
+  using: composite
+  steps:
+      - name: Check Organization
+        id: check-org-exists
+        env:
+          GITHUB_TOKEN: ${{ inputs.USER_PAT }}
+        run: |          
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "https://api.github.com/orgs/${{ inputs.ORG_NAME }}")
+          echo "Response: $RESPONSE"
+          if [[ $RESPONSE == "200" ]]; then
+            echo "Organization ${{ inputs.ORG_NAME }} exists."
+            echo "org_status=Modify" >> $GITHUB_OUTPUT
+            echo "org_exists=1" >> $GITHUB_OUTPUT
+          elif [[ $RESPONSE == "404" ]]; then
+            echo "Organization ${{ inputs.ORG_NAME }} does not exist."
+            echo "org_status=New" >> $GITHUB_OUTPUT
+            echo "org_exists=0" >> $GITHUB_OUTPUT
+          else
+            echo "An error occurred while checking the repository: HTTP $RESPONSE"
+            echo "org_status=Error" >> $GITHUB_OUTPUT
+          fi
+        shell: bash    
+    

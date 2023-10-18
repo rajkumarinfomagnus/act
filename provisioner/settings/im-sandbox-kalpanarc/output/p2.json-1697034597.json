@@ -1,0 +1,11 @@
+{
+  "allow_merge_commit": "true",
+  "allow_rebase_merge": "true",
+  "allow_squash_merge": "true",
+  "assignees": "KalpanaReddyC,RajKumarInfomagnus",
+  "has_discussions": "true",
+  "has_issues": "true",
+  "has_projects": "true",
+  "has_wiki": "true",
+  "repo_name": "p2"
+}

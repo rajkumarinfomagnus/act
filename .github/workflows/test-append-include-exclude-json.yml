@@ -1,0 +1,20 @@
+name: test-append-include-exclude-json
+on:
+  workflow_dispatch:
+    inputs:
+      ORG_NAME:
+        description: 'Name of the Organization'
+        required: true
+      REPO_NAME:
+        description: 'Name of the Repo'
+        required: true 
+      INCLUDE_EXCLUDE_FILE_NAME:
+        description: 'Name of the include/exclude file'
+        required: true
+
+jobs:
+  append-include-exclude-json:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3

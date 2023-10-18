@@ -1,0 +1,78 @@
+name: test-update-repo-ghec
+
+on:
+  workflow_dispatch:
+    inputs:
+        ORG_NAME:
+          description: 'Enter organization name'
+          required: true
+        REPO_NAME:
+          description: 'Enter name of repository'
+          required: true  
+        HOME_PAGE:
+          description: 'Enter the homepage'
+          default: 'https://im-kp-es379.eastus.cloudapp.azure.com'
+        DESCRIPTION: 
+          description: 'Enter the description'
+          default: 'This is a test repository'    
+        PRIVATE:
+          description: 'Mention whether repository is private or not'
+          default: 'true'
+        HAS_ISSUES:
+          description: 'Mention whether repository can have issues or not'
+          default: 'true'
+        HAS_PROJECTS:
+          description: 'Mention whether repository can have projects or not'
+          default: 'true'
+        HAS_WIKI:
+          description: 'Mention whether repository can have wiki or not'
+          default: 'true'  
+        HAS_DISCUSSIONS:
+          description: 'Mention whether repository can have discussions or not'
+          default: 'true'
+        ALLOW_SQUASH_MERGE:
+          description: 'Provide whether repository can have allow squash-merging pull requests or not'
+          default: 'true'
+        ALLOW_MERGE_COMMIT:
+          description: 'Provide whether repository can have allow merging pull requests with a merge commit or not'
+          default: 'true'
+        ALLOW_REBASE_MERGE:
+          description: 'Provide whether repository can have allow rebase-merging pull requests or not'
+          default: 'true'
+        ALLOW_AUTO_MERGE:
+          description: 'Provide whether repository can have allow auto-merge on pull requests or not'
+          default: 'true'
+        DELETE_BRANCH_ON_MERGE:
+          description: 'Provide whether repository can have allow automatically deleting head branches when pull requests are merged or not'
+          default: 'true'
+
+jobs:
+  modify-repository:
+    runs-on: ubuntu-latest
+    outputs:
+       Modify_repoID: ${{ steps.modify-repo.outputs.modify_repoID }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Modify Repository
+        id: modify-repo
+        uses: ./provisioner/actions/update-repo-ghec
+        with: 
+          USER_PAT: ${{ secrets.ISSUE_OPS_TOKEN }}
+          ORG_NAME: ${{ inputs.ORG_NAME }}
+          REPO_NAME: ${{ inputs.REPO_NAME }}
+          DESCRIPTION: ${{ inputs.DESCRIPTION }}
+          HOME_PAGE: ${{ inputs.HOME_PAGE }}
+          HAS_WIKI: ${{ inputs.HAS_WIKI }}
+          HAS_PROJECTS: ${{ inputs.HAS_PROJECTS }}
+          ALLOW_SQUASH_MERGE: ${{ inputs.ALLOW_SQUASH_MERGE }}
+
+
+  Output:
+    needs: modify-repository
+    runs-on: ubuntu-latest
+    steps:
+    - name: Print output  
+      run: |
+        echo "Respository Created: ${{ needs.modify-repository.outputs.Modify_repoID }}"

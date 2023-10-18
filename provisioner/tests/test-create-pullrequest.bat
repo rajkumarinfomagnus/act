@@ -1,0 +1,1 @@
+act -W .github/workflows/test-create-pullrequest.yml -e provisioner/tests/inputs/create-pull-request.json --quiet --secret-file ./test.secrets

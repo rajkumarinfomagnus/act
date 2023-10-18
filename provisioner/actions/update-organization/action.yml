@@ -1,0 +1,71 @@
+name: Update an Organization using GH CLI in Enterprise server
+description: Update an organization using the GH CLI in Enterprise Server
+
+inputs:
+  USER_PAT:
+    description: "Enter Personal access token of user"
+    required: true
+  ORG_NAME:
+    description: "Enter the Organization name"
+    required: true
+  HOSTNAME:
+    description: "Enter the hostname"
+    required: true
+  BILLING_EMAIL:
+    description: "Enter the billing email"
+    default: "mona@github.com"
+  DEFAULT_REPOSITORY_PERMISSION:
+    description: "Enter the default repository permission"
+    default: "read"
+  MEMBERS_CAN_CREATE_REPOSITORIES:
+    description: "Enter the members can create repositories"
+    default: "true"
+  MEMBERS_ALLOWED_REPOSITORY_CREATION_TYPE:
+    description: "Enter the members allowed repository creation type"
+    default: "all"
+
+outputs:
+  organization_updated:
+    description: "Organization updated successfully"
+    value: ${{ steps.update-organization.outputs.Org_Id }}
+
+runs:
+  using: composite
+  steps:
+    - name: Update organization
+      id: update-organization
+      env:
+        GITHUB_TOKEN: ${{ inputs.USER_PAT }}
+      run: |
+        command="gh api --method PATCH -H \"Accept: application/vnd.github+json\" --hostname "github.com"  /orgs/${{ inputs.ORG_NAME }}" 
+
+         if [[ -n "${{ inputs.BILLING_EMAIL }}" ]]; then
+           command+=" -f billing_email=\"${{ inputs.BILLING_EMAIL }}\""
+         fi
+
+         if [[ -n "${{ inputs.DEFAULT_REPOSITORY_PERMISSION }}" ]]; then
+           command+=" -f default_repository_permission=\"${{ inputs.DEFAULT_REPOSITORY_PERMISSION }}\""
+         fi
+
+         if [[ -n "${{ inputs.MEMBERS_CAN_CREATE_REPOSITORIES }}" ]]; then
+           command+=" -F members_can_create_repositories=${{ inputs.MEMBERS_CAN_CREATE_REPOSITORIES }}"
+         fi
+
+         if [[ -n "${{ inputs.MEMBERS_ALLOWED_REPOSITORY_CREATION_TYPE }}" ]]; then
+               command+=" -f members_allowed_repository_creation_type=\"${{ inputs.MEMBERS_ALLOWED_REPOSITORY_CREATION_TYPE }}\""
+         fi
+
+         echo $command
+         command+=" > \"modify_org.json\""
+         eval $command
+
+         Org_id=$(cat modify_org.json | jq -r '[.id, .login] | join(" ")')
+         echo "Org_id: $Org_id"
+         echo "::set-output name=Org_Id::$Org_id"
+      shell: bash
+
+    - name: upload output as devicefarm:ListArtifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: modify_org
+        path: ./modify_org.json

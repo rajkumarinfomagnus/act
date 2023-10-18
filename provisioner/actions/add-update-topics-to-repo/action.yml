@@ -1,0 +1,52 @@
+name: Add topics to repository
+description: Add topics to repository
+
+inputs:
+  USER_PAT:
+    description: 'Enter the Personal Access Token'
+    required: true  
+  ORG_NAME:
+    description: 'Organization name'
+    required: true  
+  REPO_NAME:
+    description: 'Repository name'
+    required: true
+  TOPICS:
+    description: 'Topics to add to repository'
+    required: true
+  
+outputs:
+  TOPIC_RESPONSE:
+    description: 'Response from GitHub API'
+    value: ${{ steps.assign-topics-to-repo.response }}
+
+runs:
+  using: composite
+  steps:
+     
+  - name: Assign topic to repo
+    id: assign-topics-to-repo
+    env: 
+      GITHUB_TOKEN: ${{ inputs.USER_PAT }}
+    run: |
+      #Fetch existing topics
+      existing_topics=$(curl -H "Accept: application/vnd.github.mercy-preview+json" \
+        -H "Authorization: token ${{ env.GITHUB_TOKEN }}" \
+        "https://api.github.com/repos/${{ inputs.ORG_NAME }}/${{ inputs.REPO_NAME }}/topics" | jq -r '.names | join(",")')
+      
+      new_topics="${{ inputs.TOPICS }}"
+
+      if [[ -z "$existing_topics" ]]; then
+        combined_topics="$new_topics"
+      else
+        combined_topics=$(echo "${existing_topics},${new_topics}" | tr ',' '\n' | sort -u | tr '\n' ',' | sed 's/,$//')
+      fi
+      response=$(curl -X PUT \
+        -H "Accept: application/vnd.github.mercy-preview+json" \
+        -H "Authorization: token ${{ env.GITHUB_TOKEN }}" \
+        "https://api.github.com/repos/${{ inputs.ORG_NAME }}/${{ inputs.REPO_NAME }}/topics" \
+        -d "{\"names\": [\"$(echo $combined_topics | sed 's/,/","/g')\"]}")
+        
+      echo "::set-output name=response::$response"
+    
+    shell: bash

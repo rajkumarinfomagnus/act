@@ -1,0 +1,133 @@
+name: Provisioner Request
+description: Submit a provisioner request 
+title: 'Provisioner Request'
+labels:
+  - provisioner
+body:
+
+  - type: input
+    attributes:
+      label: Issue Assignee
+      description: Who should be assigned to this issue?
+      placeholder: ex. provenvelocity
+  
+## Organization Settings
+
+  - type: markdown
+    attributes:
+      value: "## Organization Settings"
+
+  - type: input
+    attributes:
+      label: Organization name
+      placeholder: ex. im-customers 
+    validations:
+      required: true  
+
+  - type: input
+    attributes:
+      label: Billing email
+      placeholder: ex. sam.pm@infomagnus.com
+    validations:
+      required: true
+
+  - type: dropdown
+    attributes:
+      label: Default repository permissions
+      options:
+        - read
+        - write
+        - admin
+      default: 0
+    validations:
+      required: true
+
+  - type: dropdown
+    attributes:
+      label: Default repository visibility
+      options:
+        - all
+        - private
+      default: 0
+    validations:
+      required: true
+
+  - type: dropdown
+    attributes:
+      label: Members can create repositories?      
+      options:
+        - "True"
+        - "False"        
+      default: 0 
+
+## Repository Settings
+
+  - type: markdown
+    attributes:
+      value: "## Repository Settings"
+
+  - type: input
+    attributes:
+      label: Repository name
+      placeholder: ex. github-provisioner
+    validations:
+      required: true
+
+  - type: input
+    attributes:
+      label: Description
+      description: What is the description of the repository?
+
+  - type: input
+    attributes:
+      label: Homepage
+      description: What is the homepage url of the repository?
+      placeholder: ex. https://github.com
+
+  - type: input
+    attributes:
+      label: Issue Labels
+      description: What issue labels should the repository have?
+      placeholder: ex. label_1, label_2
+
+  - type: input
+    attributes:
+      label: Topics
+      description: What topics should the repository have?
+      placeholder: ex. topic_1, topic_2
+
+  - type: dropdown
+    attributes:  
+      label: Enable Wiki?
+      description: Should this repository have a Wiki?
+      options:
+        - "True"
+        - "False"
+      default: 0
+ 
+  - type: dropdown
+    attributes:
+      label: Enable Projects?
+      description: Should this repository have a Projects Board?
+      options:
+        - "True"
+        - "False"
+      default: 0 
+
+  - type: dropdown
+    attributes:
+      label: Enable Issues?
+      description: Should this repository have a Issues?
+      options:
+        - "True"
+        - "False" 
+      default: 0        
+        
+  - type: dropdown
+    attributes:
+      label: Enable Discussions?
+      description: Should this repository have a Discussions Board?
+      options:
+        - "True"
+        - "False"
+      default: 0

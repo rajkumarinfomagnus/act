@@ -1,0 +1,29 @@
+name: Get Organization Settings from GitHub
+description: Get Organization Settings from GitHub
+inputs:
+  USER_PAT:
+    description: 'Enter the Personal Access Token'
+    required: true
+  ORG_NAME:
+    description: 'Organization name'
+    required: true  
+      
+outputs:
+  RESPONSE:
+    description: 'Response from GitHub API'
+    value: ${{ steps.get-org-settings-from-gh.outputs.response }}
+
+runs:
+  using: composite
+  steps:
+    - name: Get Organization Settings from GitHub
+      id: get-org-settings-from-gh
+      env:
+          GITHUB_TOKEN: ${{ inputs.USER_PAT }}
+      run: |
+          curl -H "Authorization: bearer USER_PAT" -X POST -d " { \"query\": \"query { organization { login: $ORG_NAME }}\"  } 
+          org_settings=$(gh api orgs/${{ inputs.ORG_NAME }}/settings | jq -c .)
+          echo "org_settings: $org_settings"
+          echo "response=$org_settings" >> $GITHUB_OUTPUT
+      shell: bash     
+     

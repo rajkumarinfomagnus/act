@@ -1,0 +1,31 @@
+name: add comment to Issue
+description: Adds a comment to an issue within a repository using the gh CLI.
+inputs:  
+  ORG_NAME:
+    description: 'Enter organization name'
+    required: true
+  REPO_NAME:
+    description: 'Enter name of repository'
+    required: true  
+  ISSUE_NUMBER:
+    description: 'Enter the Issue Number'
+    required: true
+  COMMENT_BODY:
+    description: 'Enter the Issue Body'
+    required: true 
+  
+
+
+runs:
+  using: composite
+  steps:    
+
+    - name: add comment to issue
+      run: |    
+
+        gh api -X POST \
+          https://api.github.com/repos/${{ inputs.ORG_NAME }}/${{ inputs.REPO_NAME }}/issues/${{ inputs.ISSUE_NUMBER }}/comments \
+          -f body='${{ inputs.COMMENT_BODY }}'
+      env:
+        GH_TOKEN: ${{ inputs.USER_PAT }}   
+      shell: bash    

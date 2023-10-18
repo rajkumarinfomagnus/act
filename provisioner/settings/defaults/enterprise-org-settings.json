@@ -1,0 +1,371 @@
+{
+    "organization": {
+        "mandatory": {
+            "base_role": "read",
+            "members_can_create_repositories": "true",
+            "members_allowed_repository_creation_type": "all",
+            "has_organization_projects": "true",
+            "has_repository_projects": "true",
+            "repositorydefaultbranchname": "main",
+            "repositorylabels": [
+                "label1",
+                "label2"
+            ],
+            "repositorytopics": [
+                "topic1",
+                "topic2"
+            ],
+            "enabled_repositories": "all",
+            "allowed_actions": "all",
+            "allowed_actions_members": "all",
+            "github_owned_allowed": "true",
+            "patterns_allowed": [
+                "pattern1",
+                "pattern2"
+            ],
+            "name": "group-1",
+            "visibility": "all",
+            "allows_public_repositories": "false",
+            "selected_workflows": "all",
+            "default_workflow_permissions": "write",
+            "can_approve_pull_request_reviews": "true",
+            "security_and_analysis_alerts_enabled": "true",
+            "security_and_analysis_alerts_enabled_for_new_repositories": "true",
+            "advanced_security_enabled_for_new_repositories": "true",
+            "advanced_security_enabled": "true",
+            "advanced_security_alerts_enabled_for_new_repositories": "true",
+            "advanced_security_alerts_enabled": "true",
+            "advanced_security_alerts_severity": "high",
+            "advanced_security_alerts_severity_for_new_repositories": "high",
+            "advanced_security_alerts_frequency": "daily",
+            "advanced_security_alerts_frequency_for_new_repositories": "daily",
+            "advanced_security_alerts_configured": "true",
+            "advanced_security_alerts_configured_for_new_repositories": "true",
+            "dependabot_security_updates_enabled": "true",
+            "dependabot_alerts_enabled": "true",
+            "dependabot_alerts_enabled_for_new_repositories": "true",
+            "dependabot_security_updates_enabled_for_new_repositories": "true",
+            "dependency_graph_enabled_for_new_repositories": "true",
+            "secret_scanning": "enabled",
+            "secret_scanning_alerts_enabled": "true",
+            "secret_scanning_alerts_enabled_for_new_repositories": "true",
+            "secret_scanning_alerts_severity": "high",
+            "secret_scanning_alerts_severity_for_new_repositories": "high",
+            "secret_scannning_alert_frequency": "daily",
+            "secrets_scanning_alert_recipients": [
+                "user1",
+                "user2"
+            ],
+            "secrets_scanning_alert_recipients_group": [
+                "group1",
+                "group2"
+            ],
+            "secret_scanning_enabled_for_new_repositories": "true",
+            "secret_scanning_push_protection_enabled_for_new_repositories": "true",
+            "secret_scanning_push_protection_custom_link_enabled": "true",
+            "secret_scanning_push_protection_custom_link": "https://myorg.com",
+            "secrets_scanning_push_protection_branches": [
+                "branch1",
+                "branch2"
+            ],
+            "secrets_scanning_push_protection_branches_pattern": "pattern",
+            "secret_scanning_alerts_configured": "true",
+            "secret_scanning_alerts_configured_for_new_repositories": "true",
+            "codescanning_enabled": "true",
+            "codescanning_enabled_for_new_repositories": "true",
+            "codescanning_alerts_enabled_for_new_repositories": "true",
+            "codescanning_alerts_configured": "true",
+            "codescanning_alerts_configured_for_new_repositories": "true",
+            "codescanning_alerts_severity": "high",
+            "codescanning_alerts_severity_for_new_repositories": "high",
+            "codescanning_alerts_frequency": "daily",
+            "codescanning_alerts_frequency_for_new_repositories": "daily",
+            "codescanning_alerts_recipients": [
+                "user1",
+                "user2"
+            ],
+            "codescanning_alerts_recipients_group": [
+                "group1",
+                "group2"
+            ],
+            "codescanning_alerts_security_advisory_database": "all",
+            "codescanning_alerts_security_advisory_database_for_new_repositories": "all",
+            "codescanning_alerts_security_advisory_database_ids": [
+                "database1",
+                "database2"
+            ],
+            "codescanning_alerts_security_advisory_database_ids_for_new_repositories": [
+                "database1",
+                "database2"
+            ],
+            "codescanning_alerts_security_advisory_database_ids_pattern": "pattern",
+            "codescanning_alerts_security_advisory_database_ids_pattern_for_new_repositories": "pattern",
+            "codescanning_alerts_security_advisory_database_ids_exclude": [
+                "database1",
+                "database2"
+            ],
+            "codescanning_alerts_security_advisory_database_ids_exclude_for_new_repositories": [
+                "database1",
+                "database2"
+            ],
+            "codescanning_alerts_security_advisory_database_ids_exclude_pattern": "pattern",
+            "codescanning_alerts_security_advisory_database_ids_exclude_pattern_for_new_repositories": "pattern",
+            "codescanning_alerts_security_advisory_database_ids_include": [
+                "database1",
+                "database2"
+            ],
+            "codescanning_alerts_security_advisory_database_ids_include_for_new_repositories": [
+                "database1",
+                "database2"
+            ],
+            "codescanning_alerts_security_advisory_database_ids_include_pattern": "pattern",
+            "codescanning_alerts_security_advisory_database_ids_include_pattern_for_new_repositories": "pattern",
+            "codescanning_alerts_auto_fix_enabled": "true",
+            "codescanning_alerts_auto_fix_enabled_for_new_repositories": "true",
+            "codescanning_alerts_auto_fix_recipients": [
+                "user1",
+                "user2"
+            ],
+            "codescanning_alerts_auto_fix_recipients_group": [
+                "group1",
+                "group2"
+            ],
+            "codescanning_alerts_auto_fix_security_advisory_database": "all",
+            "codescanning_alerts_auto_fix_security_advisory_database_for_new_repositories": "all",
+            "codescanning_alerts_auto_fix_security_advisory_database_ids": [
+                "database1",
+                "database2"
+            ],
+            "codescanning_alerts_auto_fix_security_advisory_database_ids_for_new_repositories": [
+                "database1",
+                "database2"
+            ],
+            "codescanning_alerts_auto_fix_security_advisory_database_ids_pattern": "pattern",
+            "codescanning_alerts_auto_fix_security_advisory_database_ids_pattern_for_new_repositories": "pattern",
+            "codescanning_alerts_auto_fix_security_advisory_database_ids_exclude": [
+                "database1",
+                "database2"
+            ],
+            "codescanning_alerts_auto_fix_security_advisory_database_ids_exclude_for_new_repositories": [
+                "database1",
+                "database2"
+            ],
+            "codescanning_alerts_auto_fix_security_advisory_database_ids_exclude_pattern": "pattern",
+            "codescanning_alerts_auto_fix_security_advisory_database_ids_exclude_pattern_for_new_repositories": "pattern",
+            "codescanning_alerts_auto_fix_security_advisory_database_ids_include": [
+                "database1",
+                "database2"
+            ],
+            "codescanning_alerts_auto_fix_security_advisory_database_ids_include_for_new_repositories": [
+                "database1",
+                "database2"
+            ],
+            "codescanning_alerts_auto_fix_security_advisory_database_ids_include_pattern": "pattern",
+            "codescanning_alerts_auto_fix_security_advisory_database_ids_include_pattern_for_new_repositories": "pattern",
+            "code_security_manager_enabled": "true",
+            "code_security_manager_enabled_for_new_repositories": "true",
+            "code_security_manager_alerts_enabled_for_new_repositories": "true",
+            "code_security_manager_alerts_configured": "true",
+            "code_security_manager_alerts_configured_for_new_repositories": "true",
+            "code_security_manager_alerts_severity": "high",
+            "code_security_manager_alerts_severity_for_new_repositories": "high",
+            "code_security_manager_alerts_frequency": "daily",
+            "code_security_manager_alerts_frequency_for_new_repositories": "daily",
+            "code_security_manager_alerts_recipients": [
+                "user1",
+                "user2"
+            ],
+            "code_security_manager_alerts_recipients_group": [
+                "group1",
+                "group2"
+            ],
+            "code_security_manager_alerts_security_advisory_database": "all",
+            "code_security_manager_alerts_security_advisory_database_for_new_repositories": "all",
+            "code_security_manager_alerts_security_advisory_database_ids": [
+                "database1",
+                "database2"
+            ],
+            "code_security_manager_alerts_security_advisory_database_ids_for_new_repositories": [
+                "database1",
+                "database2"
+            ],
+            "code_security_manager_alerts_security_advisory_database_ids_pattern": "pattern",
+            "code_security_manager_alerts_security_advisory_database_ids_pattern_for_new_repositories": "pattern",
+            "code_security_manager_alerts_security_advisory_database_ids_exclude": [
+                "database1",
+                "database2"
+            ],
+            "code_security_manager_alerts_security_advisory_database_ids_exclude_for_new_repositories": [
+                "database1",
+                "database2"
+            ],
+            "code_security_manager_alerts_security_advisory_database_ids_exclude_pattern": "pattern",
+            "code_security_manager_alerts_security_advisory_database_ids_exclude_pattern_for_new_repositories": "pattern",
+            "code_security_manager_alerts_security_advisory_database_ids_include": [
+                "database1",
+                "database2"
+            ],
+            "code_security_manager_alerts_security_advisory_database_ids_include_for_new_repositories": [
+                "database1",
+                "database2"
+            ],
+            "code_security_manager_alerts_security_advisory_database_ids_include_pattern": "pattern",
+            "code_security_manager_alerts_security_advisory_database_ids_include_pattern_for_new_repositories": "pattern",
+            "code_scanning_alerts_auto_fix_enabled": "true",
+            "code_scanning_alerts_auto_fix_enabled_for_new_repositories": "true",
+            "private_vulnerability_alerts_enabled_for_new_repositories": "true",
+            "private_vulnerability_alerts_per_alert_type_enabled_for_new_repositories": "true",
+            "private_vulnerability_alerts_per_alert_type_enabled": "true",
+            "private_vulnerability_reporting_enabled_for_new_repositories": "true",
+            "private_vulnerability_reporting_enabled": "true",
+            "private_vulnerability_alerts_severity": "high",
+            "private_vulnerability_alerts_severity_for_new_repositories": "high",
+            "private_vulnerability_alerts_frequency": "daily",
+            "private_vulnerability_alerts_frequency_for_new_repositories": "daily",
+            "private_vulnerability_alerts_configured": "true",
+            "private_vulnerability_alerts_configured_for_new_repositories": "true",
+            "private_vulnerability_alerts_per_alert_type_configured": "true",
+            "private_vulnerability_alerts_per_alert_type_configured_for_new_repositories": "true",
+            "private_vulnerability_alerts_per_alert_type_severity": "high",
+            "private_vulnerability_alerts_per_alert_type_severity_for_new_repositories": "high",
+            "private_vulnerability_alerts_per_alert_type_frequency": "daily",
+            "private_vulnerability_alerts_per_alert_type_frequency_for_new_repositories": "daily",
+            "private_vulnerability_alerts_per_alert_type_recipients": [
+                "user1",
+                "user2"
+            ],
+            "private_vulnerability_alerts_per_alert_type_recipients_group": [
+                "group1",
+                "group2"
+            ],
+            "private_vulnerability_alerts_per_alert_type_security_advisory_database": "all",
+            "private_vulnerability_alerts_per_alert_type_security_advisory_database_for_new_repositories": "all",
+            "private_vulnerability_alerts_per_alert_type_security_advisory_database_ids": [
+                "database1",
+                "database2"
+            ],
+            "private_vulnerability_alerts_per_alert_type_security_advisory_database_ids_for_new_repositories": [
+                "database1",
+                "database2"
+            ],
+            "private_vulnerability_alerts_per_alert_type_security_advisory_database_ids_pattern": "pattern",
+            "private_vulnerability_alerts_per_alert_type_security_advisory_database_ids_pattern_for_new_repositories": "pattern",
+            "private_vulnerability_alerts_per_alert_type_security_advisory_database_ids_exclude": [
+                "database1",
+                "database2"
+            ],
+            "private_vulnerability_alerts_per_alert_type_security_advisory_database_ids_exclude_for_new_repositories": [
+                "database1",
+                "database2"
+            ],
+            "private_vulnerability_alerts_per_alert_type_security_advisory_database_ids_exclude_pattern": "pattern",
+            "private_vulnerability_alerts_per_alert_type_security_advisory_database_ids_exclude_pattern_for_new_repositories": "pattern",
+            "private_vulnerability_alerts_per_alert_type_security_advisory_database_ids_include": [
+                "database1",
+                "database2"
+            ],
+            "private_vulnerability_alerts_per_alert_type_security_advisory_database_ids_include_for_new_repositories": [
+                "database1",
+                "database2"
+            ],
+            "private_vulnerability_alerts_per_alert_type_security_advisory_database_ids_include_pattern": "pattern",
+            "private_vulnerability_alerts_per_alert_type_security_advisory_database_ids_include_pattern_for_new_repositories": "pattern"
+        },
+        "optional": {
+            "name": "My Organization",
+            "company": "My Organization Company",
+            "email": "company@mail.com",
+            "twitter": "myorg",
+            "location": "My Organization Location",
+            "billing_email": "billing@mail.com",
+            "description": "My Organization Description",
+            "url": "https://myorg.com",
+            "members_can_create_private_repositories": "true",
+            "members_can_create_internal_repositories": "true",
+            "members_can_create_public_repositories": "true",
+            "members_can_create_pages": "true",
+            "members_can_create_private_pages": "true",
+            "members_can_create_internal_pages": "true",
+            "members_can_create_public_pages": "true",
+            "members_can_create_wikis": "true",
+            "members_can_create_private_wikis": "true",
+            "members_can_create_internal_wikis": "true",
+            "members_can_create_public_wikis": "true",
+            "members_can_create_discussions": "true",
+            "members_can_create_private_discussions": "true",
+            "members_can_create_internal_discussions": "true",
+            "members_can_create_public_discussions": "true",
+            "members_can_create_packages": "true",
+            "members_can_create_private_packages": "true",
+            "members_can_create_internal_packages": "true",
+            "members_can_create_public_packages": "true",
+            "members_can_create_issues": "true",
+            "members_can_create_private_issues": "true",
+            "members_can_create_internal_issues": "true",
+            "members_can_create_public_issues": "true",
+            "members_can_create_projects": "true",
+            "members_can_create_private_projects": "true",
+            "members_can_create_internal_projects": "true",
+            "members_can_create_public_projects": "true",
+            "members_can_create_milestones": "true",
+            "members_can_create_private_milestones": "true",
+            "members_can_create_internal_milestones": "true",
+            "members_can_create_public_milestones": "true",
+            "members_can_create_releases": "true",
+            "members_can_create_private_releases": "true",
+            "members_can_create_internal_releases": "true",
+            "members_can_create_public_releases": "true",
+            "members_can_create_deployments": "true",
+            "members_can_create_private_deployments": "true",
+            "members_can_create_internal_deployments": "true",
+            "members_can_create_public_deployments": "true",
+            "members_can_create_reviews": "true",
+            "members_can_create_private_reviews": "true",
+            "members_can_create_internal_reviews": "true",
+            "members_can_create_public_reviews": "true",
+            "members_can_create_commits": "true",
+            "members_can_create_private_commits": "true",
+            "members_can_create_internal_commits": "true",
+            "members_can_create_public_commits": "true",
+            "members_can_create_branches": "true",
+            "members_can_create_private_branches": "true",
+            "members_can_create_internal_branches": "true",
+            "members_can_create_public_branches": "true",
+            "members_can_create_tags": "true",
+            "members_can_create_private_tags": "true",
+            "members_can_create_internal_tags": "true",
+            "members_can_create_public_tags": "true",
+            "members_can_create_forks": "true",
+            "members_can_create_private_forks": "true",
+            "members_can_create_internal_forks": "true",
+            "members_can_create_public_forks": "true",
+            "members_can_fork_private_repositories": "true",
+            "members_can_create_organization_webhooks": "true",
+            "members_can_create_repository_webhooks": "true",
+            "members_can_create_private_webhooks": "true",
+            "members_can_create_internal_webhooks": "true",
+            "members_can_create_public_webhooks": "true",
+            "members_can_create_organization_hooks": "true",
+            "members_can_create_repository_hooks": "true",
+            "members_can_create_private_hooks": "true",
+            "members_can_create_internal_hooks": "true",
+            "members_can_create_public_hooks": "true",
+            "members_can_create_organization_deploykeys": "true",
+            "members_can_create_repository_deploykeys": "true",
+            "members_can_create_private_deploykeys": "true",
+            "members_can_create_internal_deploykeys": "true",
+            "members_can_create_public_deploykeys": "true",
+            "web_commit_signoff_required": "true",
+            "actions": {
+                "secrets": {
+                    "secret_name": "ORG",
+                    "encrypted_value": "ENCRYPTED_VALUE",
+                    "key_id": "KEY_ID",
+                    "visibility": "all"
+                },
+                "members_can_create_organization_secrets": "true",
+                "members_can_create_repository_secrets": "true"
+            }
+        }
+    }
+}

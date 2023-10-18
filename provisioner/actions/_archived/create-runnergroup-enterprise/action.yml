@@ -1,0 +1,56 @@
+name: Create Runner Group at Enterprise Level
+description: Creates a runner group at the enterprise level using the GitHub API.
+
+inputs:
+  GROUP_NAME:
+    description: 'Enter Runner group name'
+    required: true
+  ENTERPRISE_SLUG_NAME:
+    description: 'Enter the name of ENTERPRISE SLUG'
+    required: true
+  TOKEN:
+    description: 'Enter Personal access token of user'
+    required: true
+  HOSTNAME:
+    description: 'Enter the hostname'
+    required: true
+    
+runs:
+  using: composite
+  steps:
+    - name: Check existing runner groups and create if not exists
+      run: |
+        response=$(curl -L \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer ${{ inputs.TOKEN }}" \
+          "https://${{ inputs.HOSTNAME }}/api/v3/enterprises/${{ inputs.ENTERPRISE_SLUG_NAME }}/actions/runner-groups")
+        echo "Response: $response"
+        
+        # Check if response contains "Not Found"
+        if [[ "$response" == *"Not Found"* ]]; then
+          echo "Runner group does not exist. Creating..."
+          curl -L \
+          -X POST \
+          -H "Accept: application/vnd.github+json" \
+          -H "Authorization: Bearer ${{ inputs.TOKEN }}" \
+          https://${{ inputs.HOSTNAME }}/api/v3/enterprises/${{ inputs.ENTERPRISE_SLUG_NAME }}/actions/runner-groups \
+          -d '{"name":"${{ inputs.GROUP_NAME }}","visibility":"selected"}'
+        else
+          group_exists=$(echo "$response" | jq -r '.runner_groups[] | select(.name == "${{ inputs.GROUP_NAME }}") | .name')
+
+          echo "group_exists: $group_exists"
+          
+          if [ -z "$group_exists" ]; then
+            echo "Runner group does not exist. Creating..."
+            curl -L \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${{ inputs.TOKEN }}" \
+            https://${{ inputs.HOSTNAME }}/api/v3/enterprises/${{ inputs.ENTERPRISE_SLUG_NAME }}/actions/runner-groups \
+            -d '{"name":"${{ inputs.GROUP_NAME }}","visibility":"selected"}'
+          else
+            echo "Runner group already exists."
+            exit 1
+          fi
+        fi
+      shell: bash

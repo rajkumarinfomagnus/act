@@ -1,0 +1,40 @@
+name: Delete Branch
+description: Delete a branch from a repository
+inputs:
+  USER_PAT:
+    description: 'Enter the USER_PAT'
+    required: true 
+  MAIN_BRANCH:
+    description: 'Enter the main branch name'
+    required: true
+  BRANCH_NAME:
+    description: 'Enter name of branch to delete'
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Delete Branch
+      id: delete-branch
+      env:
+          GITHUB_TOKEN: ${{ inputs.USER_PAT }}  
+      run: |
+        git fetch origin
+
+        branch_name="${{ inputs.BRANCH_NAME }}"
+        echo "Branch name is $branch_name"       
+        
+        git checkout -b $branch_name
+        # Checkout to main
+        git checkout ${{ inputs.MAIN_BRANCH }} 
+               
+        if git ls-remote --heads origin "$branch_name" | grep -q "$branch_name"; then
+          # Delete the branch locally
+          git branch -D "$branch_name"
+          # Push the deletion to the remote repository
+          git push origin --delete "$branch_name"
+        else
+            echo "Branch '$branch_name' does not exist on remote."
+        fi        
+       
+      shell: bash

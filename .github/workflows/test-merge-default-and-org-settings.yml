@@ -1,0 +1,14 @@
+name: test-merge-default-and-org-settings
+
+on:
+  workflow_dispatch:
+    inputs:
+      org_name:
+        description: 'Organization Name'
+        required: true
+jobs:
+  create-organization:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3

@@ -1,0 +1,41 @@
+name: test-add-comment-to-issue
+
+on:
+  workflow_dispatch:
+    inputs:       
+      ORG_NAME:
+        description: 'Enter organization name'
+        required: true
+      REPO_NAME:
+        description: 'Enter name of repository'
+        required: true  
+      ISSUE_NUMBER:
+        description: 'Enter the Issue Number'
+        required: true
+      COMMENT_BODY:
+        description: 'Enter the Issue Body'
+        required: true 
+jobs:
+  add-comment-to-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install gh CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install gh 
+
+      - name: Login to GitHub
+        run: |
+          gh auth login --with-token <<< "${{ secrets.ISSUE_OPS_TOKEN }}"  
+
+      - name: Add comment to issue
+        uses: ./provisioner/actions/add-comment-to-issue
+        with:
+          USER_PAT: ${{ secrets.ISSUE_OPS_TOKEN }}
+          ORG_NAME: ${{ github.event.inputs.ORG_NAME }}
+          REPO_NAME: ${{ github.event.inputs.REPO_NAME }}
+          ISSUE_NUMBER: ${{ github.event.inputs.ISSUE_NUMBER }}
+          COMMENT_BODY: ${{ github.event.inputs.COMMENT_BODY }}  

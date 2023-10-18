@@ -1,0 +1,14 @@
+name: test-authorize
+
+on:
+  workflow_dispatch:
+    inputs:
+      org_name:
+        description: 'Organization Name'
+        required: true
+jobs:
+  authorize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3

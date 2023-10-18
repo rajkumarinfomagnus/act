@@ -1,0 +1,11 @@
+{
+    "inputs": {
+        "ORG_NAME": "im-sandbox-phanirb",
+        "REPO_NAME": "test-phani-307",
+        "DESCRIPTION": "rajkumarinfomagnus",
+        "HOME_PAGE": "rajkumar.bommaraju@infomagnus.com",
+        "HAS_WIKI": "true",
+        "HAS_PROJECTS": "true",
+        "ALLOW_SQUASH_MERGE": "true"
+    }
+}

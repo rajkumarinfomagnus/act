@@ -1,0 +1,1 @@
+act -W .github/workflows/test-add-update-labels.yml -e provisioner/tests/inputs/add-update-labels.json --quiet --secret-file ./test.secrets

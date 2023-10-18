@@ -1,0 +1,32 @@
+name: test-add-assignee-to-issue
+
+on:
+  workflow_dispatch:
+    inputs:
+      ORG_NAME:
+        description: 'Enter the Organization Name'
+        required: true
+      REPO_NAME:
+        description: 'Enter the repository name'
+        required: true
+      ISSUE_NUMBER:
+        description: 'Enter the Issue Number'
+        required: true
+      ISSUE_ASSIGNEES:
+        description: 'Enter the GitHub usernames of the assignees'
+        required: true
+jobs:
+  add-assignee-to-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Add assignee to issue
+        uses: ./provisioner/actions/add-assignees-to-issue
+        with:
+          USER_PAT: ${{ secrets.ISSUE_OPS_TOKEN }}
+          ORG_NAME: ${{ github.event.inputs.ORG_NAME }}
+          REPO_NAME: ${{ github.event.inputs.REPO_NAME }}
+          ISSUE_NUMBER: ${{ github.event.inputs.ISSUE_NUMBER }}
+          ISSUE_ASSIGNEES: ${{ github.event.inputs.ISSUE_ASSIGNEES }}

@@ -1,0 +1,62 @@
+name: Create Team
+description: Creates a team within an organization using the gh CLI.
+
+inputs:
+  ORG_NAME:
+    description: 'Enter the organization name'
+    required: true
+  TEAM_NAME:
+    description: 'Enter the team name'
+    required: true
+  HOSTNAME:
+    description: 'Enter the host name'
+    required: true
+  USER_TOKEN:
+    description: 'Enter Personal access token of user'
+    required: true     
+  DESCRIPTION:
+    description: 'Enter the Description'
+    required: true   
+  PERMISSION:
+    description: 'Enter the permission'
+    default: 'pull'
+  PRIVACY:
+    description: 'Enter the privacy'
+    default: 'secret' 
+  IDP_TEAM:
+    description: 'Enter the IdP team name'
+    required: false
+
+runs:
+  using: composite
+  steps:
+    - name: authenticate
+      uses: temp/authorize
+      with:
+        authentication: 'token'
+        github-token: ${{ inputs.TOKEN }}
+ # need to set up to use ghec or ghes, and to use IdP if that is passed in
+    - run: |
+        if [[ -z IDP_TEAM_ID ]]; then
+          gh api \
+            --method POST \
+            -H "Accept: application/vnd.github+json" \
+            --hostname "${{ inputs.HOSTNAME }}" \
+            /orgs/${{ inputs.ORG_NAME }}/teams \
+            -f name='${{ inputs.TEAM_NAME }}' \
+          -f description='${{ inputs.DESCRIPTION }}' \
+          -f permission='${{ inputs.PERMISSION }}' \
+          -f privacy='${{ inputs.PRIVACY }}' 
+        else
+          gh api \
+            --method POST \
+            -H "Accept: application/vnd.github+json" \
+            --hostname "${{ inputs.HOSTNAME }}" \
+            /orgs/${{ inputs.ORG_NAME }}/teams \
+            -f name='${{ inputs.TEAM_NAME }}' \
+          -f description='${{ inputs.DESCRIPTION }}' \
+          -f permission='${{ inputs.PERMISSION }}' \
+          -f privacy='${{ inputs.PRIVACY }}' \
+          -f parent_team_id='${{ inputs.IDP_TEAM }}' 
+        fi
+      shell: bash  

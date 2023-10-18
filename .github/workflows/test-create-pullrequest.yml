@@ -1,0 +1,48 @@
+name: test-create-pullrequest
+
+on:
+  workflow_dispatch:
+    inputs:
+      ORG_NAME:
+        description: 'Enter the ORG_NAME'
+        required: true
+      REPO_NAME:
+        description: 'Enter the REPO_NAME'
+        required: true  
+      PR_TITLE:
+        description: 'Enter the PR_TITLE'
+        required: true
+      PR_BODY:
+        description: 'Enter the PR_BODY'
+        default: 'Please pull these awesome changes in!'
+      PR_HEAD_BRANCH:
+        description: 'Enter the PR_HEAD_BRANCH'
+        required: true
+      PR_MAIN_BRANCH:
+        description: 'Enter the PR_MAIN_BRANCH'
+jobs:
+  create-pullrequest:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Install gh CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install gh
+
+      - name: Login to GitHub
+        run: |
+          gh auth login --with-token <<< "${{ secrets.ISSUE_OPS_TOKEN }}"
+
+      - name: Create Pull Request
+        uses: ./provisioner/actions/create-pullrequest
+        with:
+          USER_PAT: ${{ secrets.ISSUE_OPS_TOKEN }}
+          ORG_NAME: ${{ github.event.inputs.ORG_NAME }}
+          REPO_NAME: ${{ github.event.inputs.REPO_NAME }}
+          PR_TITLE: ${{ github.event.inputs.PR_TITLE }}
+          PR_BODY: ${{ github.event.inputs.PR_BODY }}
+          PR_HEAD_BRANCH: ${{ github.event.inputs.PR_HEAD_BRANCH }}
+          PR_MAIN_BRANCH: ${{ github.event.inputs.PR_MAIN_BRANCH }}

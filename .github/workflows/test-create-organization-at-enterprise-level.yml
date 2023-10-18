@@ -1,0 +1,47 @@
+name: test-create-organization-at-enterprise-level
+
+on:
+  workflow_dispatch:
+    inputs:
+      ORG_NAME:
+        description: "Enter new organization name"
+        required: true
+      PROFILE_NAME:
+        description: "Enter the profile name for Organization"
+        required: true
+      ADMIN:
+        description: "Enter GitHub handle name of Organization admin"
+        required: true
+      BILLING_EMAIL:
+        description: "Billing email address"
+        required: true
+      
+jobs:
+  create-organization-at-enterprise-level:
+    runs-on: ubuntu-latest
+    outputs:
+      Create_OrgID: ${{ steps.create_enterprise_organization.outputs.organization_id }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: create-enterprise-organization
+        uses: ./provisioner/actions/create-organization-at-enterprise-level
+        id: create_enterprise_organization
+        with:
+          USER_PAT: ${{ secrets.ISSUE_OPS_TOKEN }}
+          ORG_NAME: ${{ github.event.inputs.ORG_NAME }}
+          PROFILE_NAME: ${{ github.event.inputs.PROFILE_NAME }}
+          ADMIN: ${{ github.event.inputs.ADMIN }}
+          HOSTNAME: ${{ vars.hostname }}          
+          BILLING_EMAIL: ${{ github.event.inputs.BILLING_EMAIL }}
+
+  Output:
+    needs: create-organization-at-enterprise-level
+    runs-on: ubuntu-latest
+    steps:
+    - name: Print output  
+      run: |
+        echo "Organization Created: ${{ needs.create-organization-at-enterprise-level.outputs.Create_OrgID }}"
+
+        

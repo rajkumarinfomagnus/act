@@ -1,0 +1,76 @@
+name: Organization - Update
+
+on:
+  workflow_dispatch:
+    inputs:
+      ORG_NAME:
+        description: 'Organization Name'
+        required: true
+      BILLING_EMAIL:
+        description: 'Billing Email Address'
+        default: "sam.peddamatham@infomagnus.com"
+        required: true
+
+      HOSTNAME:
+        description: 'Enter the hostname'
+        required: true 
+        default: "github.com"
+      DEFAULT_REPOSITORY_PERMISSION:
+        description: 'Enter the default repository permission'
+        type: choice
+        options:
+        - read
+        - write
+        - admin
+        - none
+        required: true
+        default: 'read' 
+
+      MEMBERS_CAN_CREATE_REPOSITORIES:
+        description: 'Enter the members can create repositories'
+        type: choice
+        options:
+        - True
+        - False
+        required: true
+        default: 'True' 
+
+      MEMBERS_ALLOWED_REPOSITORY_CREATION_TYPE:
+        description: 'Enter the members allowed repository creation type'
+        type: choice
+        options:
+        - all
+        - private
+        - none
+        required: true
+        default: 'all' 
+
+
+jobs:
+  update-organization:
+    runs-on: ubuntu-latest
+    outputs: 
+      Modify_OrgID: ${{ steps.update_enterprise_organization.outputs.organization_updated }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: update-enterprise-organization
+        uses: ./provisioner/actions/update-organization
+        id: update_enterprise_organization 
+        with:
+          ORG_NAME: ${{ github.event.inputs.ORG_NAME }}
+          HOSTNAME: ${{ github.event.inputs.HOSTNAME }}          
+          USER_PAT: ${{ secrets.ISSUE_OPS_TOKEN }}
+          BILLING_EMAIL: ${{ github.event.inputs.BILLING_EMAIL }}
+          DEFAULT_REPOSITORY_PERMISSION: ${{ github.event.inputs.DEFAULT_REPOSITORY_PERMISSION }}
+          MEMBERS_CAN_CREATE_REPOSITORIES: ${{ github.event.inputs.MEMBERS_CAN_CREATE_REPOSITORIES }}
+          MEMBERS_ALLOWED_REPOSITORY_CREATION_TYPE: ${{ github.event.inputs.MEMBERS_ALLOWED_REPOSITORY_CREATION_TYPE }}
+    
+  Output:
+    needs: update-organization
+    runs-on: ubuntu-latest
+    steps:
+    - name: Print output  
+      run: |
+        echo "Organization Created: ${{ needs.update-organization.outputs.Modify_OrgID }}"

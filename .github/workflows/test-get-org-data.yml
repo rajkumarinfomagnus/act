@@ -1,0 +1,25 @@
+name: test-get-org-data
+
+on:
+  workflow_dispatch:
+    inputs:
+      org_name:
+        description: 'Organization Name'
+        required: true
+jobs:
+  create-organization:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      - name: Get Organization Settings from GitHub
+        id: get_org_settings_from_gh
+        uses: ./provisioner/actions/get-org-settings-from-gh
+        with:
+          USER_PAT: ${{ secrets.USER_PAT }}
+          ORG_NAME: ${{ github.event.inputs.org_name }}
+
+      - name: outputresponse
+        run: |
+          echo "response=${{ steps.get_org_settings_from_gh.outputs.response }}"
+          

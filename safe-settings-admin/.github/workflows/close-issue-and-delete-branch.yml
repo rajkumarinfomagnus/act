@@ -1,0 +1,60 @@
+name: Close Issue and Delete Branch
+
+on:
+  pull_request:
+    types:
+      - closed
+      
+jobs:
+  close-issue-and-delete-branch:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2 
+        
+      - name: Check if PR was merged
+        id: pr-merged
+        run: echo ::set-output name=merged::${{ github.event.pull_request.merged }}
+
+      - name: Close Issue
+        if: steps.pr-merged.outputs.merged == 'true'
+        run: |
+          # Extract issue number from the PR title or body
+          issue_number=$(echo "${{ github.event.pull_request.title }}" | grep -oP 'Closes #\d+' | grep -oP '\d+')
+          if [ -z "$issue_number" ]; then
+            echo "No issue reference found in the PR title. Checking PR body..."
+            issue_number=$(echo "${{ github.event.pull_request.body }}" | grep -oP 'Closes #\d+' | grep -oP '\d+')
+          fi
+
+          if [ -n "$issue_number" ]; then
+            echo "Closing issue #${issue_number}"
+            curl -X POST -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${{ github.repository }}/issues/${issue_number}/comments" -d '{"body":"This issue has been closed by merging the associated pull request."}'
+            curl -X PATCH -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" "https://api.github.com/repos/${{ github.repository }}/issues/${issue_number}" -d '{"state":"closed"}'
+          else
+            echo "No issue reference found in the PR title or body."
+          fi
+
+      - name: Delete Branch
+        if: steps.pr-merged.outputs.merged == 'true'
+        run: |
+          git fetch origin
+          
+          branch_name="${{ github.event.pull_request.head.ref }}"
+          echo "Branch name is $branch_name"
+
+          git checkout -b $branch_name
+          
+          # Verify that the branch is now checked out
+          git branch
+
+          # Checkout to main
+          git checkout main
+          
+          # Delete the branch locally
+          git branch -d "$branch_name"
+
+          # Push the deletion to the remote repository
+          git push origin --delete "$branch_name"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}     

@@ -1,0 +1,1 @@
+act -W .github/workflows/test-add-label-to-issue.yml -e provisioner/tests/inputs/add-label-to-issue.json --quiet --secret-file ./test.secrets

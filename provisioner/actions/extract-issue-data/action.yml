@@ -1,0 +1,22 @@
+name: Extract issue data
+description: 'Extract the data from the issue form'
+inputs:
+  USER_PAT:
+    description: 'Enter the Personal Access Token'
+    required: true  
+
+runs:
+  using: composite
+  steps:
+    - name: Issue Forms Body Parser
+      id: parse
+      uses: zentered/issue-forms-body-parser@v2.0.0
+    - run: |
+         echo '${{ steps.parse.outputs.data }}' > ./provisioner/scripts/issue.json
+         cat ./provisioner/scripts/issue.json 
+      shell: bash   
+    - run: node ./provisioner/scripts/parse-json.js
+      env:
+         GITHUB_TOKEN: ${{ inputs.USER_PAT }}      
+      shell: bash      
+   

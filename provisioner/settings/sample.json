@@ -1,0 +1,24 @@
+{
+    "org_name": "im-sandbox-kalpanarc",
+    "billing_email": "abc@gmail.com",
+    "repository": {
+        "name": "p24",
+        "has_wiki": true,
+        "has_projects": true,
+        "has_discussions": true,
+        "allow_squash_merge": true,
+        "allow_merge_commit": true,
+        "allow_rebase_merge": false,
+        "allow_auto_merge": true,
+        "delete_branch_on_merge": false,
+        "assignees": "KalpanaReddyC,RajKumarInfomagnus"
+    },
+    "teams": [
+        {
+            "team_name": "p24",
+            "permission": "admin",
+            "repo_names": "p24",
+            "members": "KalpanaReddyC,RajKumarInfomagnus"
+        }
+    ]
+}

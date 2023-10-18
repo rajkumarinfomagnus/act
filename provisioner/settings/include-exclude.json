@@ -1,0 +1,28 @@
+{
+  "enforce": {
+    "im-sandbox-kalpanarc": [
+      "p24",
+      "p20",
+      "k12"
+    ],
+    "kalpana-safesettings": [
+      "fourth-repo"
+    ],
+    "org1": [
+      "first-repo"
+    ],
+    "org2": [
+      "first-repo"
+    ]
+  },
+  "audit": {
+    "im-sandbox-phanirb": [
+      "logs"
+    ]
+  },
+  "ignore": {
+    "InfoMKalpanaDemo": [
+      "FirstRepo"
+    ]
+  }
+}

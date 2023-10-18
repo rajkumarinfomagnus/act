@@ -1,0 +1,14 @@
+name: test-audit-org
+
+on:
+  workflow_dispatch:
+    inputs:
+      org_name:
+        description: 'Organization Name'
+        required: true
+jobs:
+  audit-org:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3

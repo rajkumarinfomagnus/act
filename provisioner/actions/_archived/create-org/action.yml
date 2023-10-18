@@ -1,0 +1,49 @@
+name: 'Create a new org'
+description: 'Creates a branch in Github'
+inputs:
+  token:
+    description: 'GITHUB_TOKEN or a `repo` scoped Personal Access Token (PAT)'
+    default: ${{ github.token }}
+  enterprise:
+    description: 'THe enterprise to add the org (is this really needed???)'
+  admins:
+    description: 'List of arg admins to add to the new org'
+    required: true
+  billingemail:
+    description: 'email for the person who will get billing notices'
+    required: true
+  login: 
+    description: ''
+    required: false
+  profile-name: 
+    description: ''
+    required: false
+  runs: |
+    - uses: octokit/graphql-action@v2.x
+    id: create_enterprise_organization
+    with:
+      query: |
+        mutation CreateEnterpriseOrganization($adminLogins: [String!]!, $enterpriseId: ID!, $billingEmail: String!, $login: String!, $profileName: String!) {
+          createEnterpriseOrganization(input: {
+            adminLogins: $adminLogins,
+            enterpriseId: $enterpriseId,
+            billingEmail: $billingEmail,
+            login: $login,
+            profileName: $profileName
+          }) {
+            enterprise {
+              id
+              name
+            }
+          }
+        }
+      variables: |
+        {
+          "adminLogins": ${{ inputs.admins }},
+          "enterpriseId": ${{ inputs.enterprise }},
+          "billingEmail": ${{ inputs.billing-email }},
+          "login": ${{ inputs.login }},
+          "profileName": ${{ inputs.profile-name }}
+        }
+    env:
+      GITHUB_TOKEN: ${{ inputs.token }}

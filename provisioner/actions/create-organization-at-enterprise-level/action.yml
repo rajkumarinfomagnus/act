@@ -1,0 +1,79 @@
+name: Create Organization
+description: Creates an organization on a GitHub Enterprise Server instance using the gh CLI.
+
+inputs:
+  USER_PAT:
+    description: "Enter Personal access token of user"
+    required: true
+  HOSTNAME:
+    description: "Enter the hostname. required for GHES"
+    default: "github.com"
+  ORG_NAME:
+    description: "Enter new organization name"
+    required: true
+  PROFILE_NAME:
+    description: "Enter the profile name for Organization"
+    required: true
+  ADMIN:
+    description: "Enter GitHub handle name of Organization admin"
+    required: true
+  BILLING_EMAIL:
+    description: "Billing email address"
+    required: true
+    default: "sam.peddamatham@infomagnus.com"
+
+outputs:
+  organization_created:
+    description: "Indicates if the organization was successfully created"
+    value: ${{ steps.create_organization.outputs.organization_created }}
+  organization_id:
+    description: "The Org ID, whether it was just created or if the Org already exists"
+    value: ${{ steps.create_enterprise_organization.outputs.Org_Id }}
+
+runs:
+  using: composite
+  steps:
+    - name: Check if organization exists
+      id: check_if_org_exists
+      uses: ./provisioner/actions/check-org-exists
+      with:
+        USER_PAT: ${{ inputs.USER_PAT }}
+        ORG_NAME: ${{ inputs.ORG_NAME }}
+
+    - name: Create Organization at Enterprise Level
+      if: ${{ steps.check_if_org_exists.org_exists == 0 }}
+      id: create_enterprise_organization
+      env:
+        GITHUB_TOKEN: ${{ inputs.USER_PAT }}
+      run: |
+        QUERY=$(jq -n --arg query '
+          mutation CreateEnterpriseOrganization($adminLogins: [String!]!, $enterpriseId: ID!, $billingEmail: String!, $login: String!, $profileName: String!) {
+            createEnterpriseOrganization(input: {
+              adminLogins: $adminLogins,
+              enterpriseId: $enterpriseId,
+              billingEmail: $billingEmail,
+              login: $login,
+              profileName: $profileName
+            }) {
+              organization {
+                id
+                login
+              }
+              enterprise {
+                id
+                name
+              }
+            }
+          }' --argjson variables '{
+            "adminLogins": ["${{ inputs.ADMIN }}"],
+            "enterpriseId": "MDEwOkVudGVycHJpc2U1ODEx", 
+            "billingEmail": "${{ inputs.BILLING_EMAIL }}",
+            "login": "${{ inputs.ORG_NAME }}",
+            "profileName": "${{ inputs.PROFILE_NAME }}"
+          }' -c '{query: $query, variables: $variables}')
+        curl -X POST -H "Authorization: bearer $GITHUB_TOKEN" -d "$QUERY" https://api.github.com/graphql > output.json
+        cat output.json
+        Org_id=$(cat output.json | jq -r '.data.createEnterpriseOrganization.organization | [.id, .login] | join(" ")')
+        echo "Org_id: $Org_id"
+        echo "::set-output name=Org_Id::$Org_id"
+      shell: bash

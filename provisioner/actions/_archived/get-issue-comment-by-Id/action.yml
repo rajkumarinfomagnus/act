@@ -1,0 +1,28 @@
+name: get Issue comment by CommentId
+description: Get the comment of an issue within a repository using the gh CLI.
+inputs:
+  ORG_NAME:
+    description: 'Enter organization name'
+    required: true
+  REPO_NAME:
+    description: 'Enter name of repository'
+    required: true   
+  COMMENT_ID:
+    description: 'Enter the Issue Body'
+    required: true 
+
+runs:
+  using: composite
+  steps:    
+
+    - name: add comment to issue
+      run: |    
+
+        response=$(gh api \
+        -H "Accept: application/vnd.github+json" \
+        -H "X-GitHub-Api-Version: 2022-11-28" \
+        /repos/${{ inputs.ORG_NAME }}/${{ inputs.REPO_NAME }}/issues/comments/${{ inputs.COMMENT_ID }})
+
+        echo "::set-output name=response::$response"
+      
+      shell: bash    

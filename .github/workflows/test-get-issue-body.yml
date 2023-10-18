@@ -1,0 +1,20 @@
+name: test-get-issue-body
+
+on:
+  workflow_dispatch:
+    inputs:
+      ORG_NAME:
+        description: 'Organization name'
+        required: true  
+      REPO_NAME:
+        description: 'Repository name'
+        required: true   
+      ISSUE_NUMBER:
+        description: 'Issue Number'
+        required: true
+jobs:
+  get-issue-body:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3

@@ -1,0 +1,56 @@
+name: Create Repository
+description: Creates a repository within an organization using the gh CLI.
+
+inputs:
+  ORG_NAME:
+    description: 'Enter organization name'
+    required: true
+  REPO_NAME:
+    description: 'Enter name of repository'
+    required: true
+  USER_TOKEN:
+    description: 'Enter the token'
+    required: true  
+  HOSTNAME:
+    description: 'Enter the hostname'
+    required: true    
+  HOMEPAGE:
+    description: 'Enter the homepage'
+    default: 'https://im-kp-es379.eastus.cloudapp.azure.com'  
+  PRIVATE:
+    description: 'Mention whether repository is private or not'
+    default: 'true'
+  HAS_ISSUES:
+    description: 'Mention whether repository can have issues or not'
+    default: 'true'
+  HAS_PROJECTS:
+    description: 'Mention whether repository can have projects or not'
+    default: 'true'
+  HAS_WIKI:
+    description: 'Mention whether repository can have wiki or not'
+    default: 'true'     
+  
+
+runs:
+  using: composite
+  steps:
+    - name: Authenticate with GitHub
+      run: echo "${{ inputs.USER_TOKEN }}" | gh auth login -h "${{ inputs.HOSTNAME }}" --with-token
+      shell: bash
+
+    - name: update repository
+      run: |
+          gh api \
+          --method PATCH \
+          -H "Accept: application/vnd.github+json" \
+          -H "X-GitHub-Api-Version: 2022-11-28" \
+          --hostname "${{ inputs.HOSTNAME }}" \
+          "/repos/${{ inputs.ORG_NAME }}/${{ inputs.REPO_NAME }}" \
+          -f "name=Hello-World" \
+          -f "description=This is your first repository" \
+          -f "homepage=${{ inputs.HOMEPAGE }}" \
+          -F "private=${{ inputs.PRIVATE }}" \
+          -F "has_issues=${{ inputs.HAS_ISSUES }}" \
+          -F "has_projects=${{ inputs.HAS_PROJECTS }}" \
+          -F "has_wiki=${{ inputs.HAS_WIKI }}"
+      shell: bash    

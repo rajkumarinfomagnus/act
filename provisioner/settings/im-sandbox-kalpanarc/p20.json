@@ -1,0 +1,11 @@
+{
+  "name": "p20",
+  "has_wiki": false,
+  "has_projects": false,
+  "has_discussions": false,
+  "has_issues": true,
+  "allow_squash_merge": "false",
+  "allow_merge_commit": "false",
+  "allow_rebase_merge": "false",
+  "assignees": "KalpanaReddyC,RajKumarInfomagnus"
+}

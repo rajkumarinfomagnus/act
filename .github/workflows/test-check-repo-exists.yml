@@ -1,0 +1,25 @@
+name: test-check-repo-exists
+
+on:
+  workflow_dispatch:
+    inputs:
+      ORG_NAME:
+        description: 'Enter organization name'
+        required: true
+      REPO_NAME:
+        description: 'Enter name of repository'
+        required: true 
+jobs:
+  check-repo-exists:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: check Repo exists
+        id: chk-repo-exists
+        uses: ./provisioner/actions/check-repo-exists
+        with:
+          USER_PAT: ${{ secrets.ISSUE_OPS_TOKEN }} 
+          ORG_NAME: ${{ github.event.inputs.ORG_NAME }}
+          REPO_NAME: ${{ github.event.inputs.REPO_NAME }}            

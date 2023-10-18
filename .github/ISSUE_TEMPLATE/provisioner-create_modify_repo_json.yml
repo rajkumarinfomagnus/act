@@ -1,0 +1,13 @@
+name: Provisioner Request (JSON)
+description: Submit a provisioner request via JSON
+title: 'Provisioner Request'
+labels:
+  - provisioner
+body:   
+  - type: textarea
+    id: repository-config
+    attributes:
+      label: Repository configuration
+      description: Provide the repository configuration
+    validations:
+      required: true

@@ -1,0 +1,132 @@
+name: Update Repository
+description: Updates a repository within an organization using the gh CLI.
+
+inputs:
+  USER_PAT:
+    description: 'Enter the Personal Access Token'
+    required: true
+  ORG_NAME:
+    description: 'Enter organization name'
+    required: true
+  REPO_NAME:
+    description: 'Enter name of repository'
+    required: true  
+  HOME_PAGE:
+    description: 'Enter the homepage'
+    default: 'https://im-kp-es379.eastus.cloudapp.azure.com'
+  DESCRIPTION: 
+    description: 'Enter the description'
+    default: 'This is a test repository'    
+  PRIVATE:
+    description: 'Mention whether repository is private or not'
+    default: 'true'
+  HAS_ISSUES:
+    description: 'Mention whether repository can have issues or not'
+    default: 'true'
+  HAS_PROJECTS:
+    description: 'Mention whether repository can have projects or not'
+    default: 'true'
+  HAS_WIKI:
+    description: 'Mention whether repository can have wiki or not'
+    default: 'true'  
+  HAS_DISCUSSIONS:
+    description: 'Mention whether repository can have discussions or not'
+    default: 'true'
+  ALLOW_SQUASH_MERGE:
+    description: 'Provide whether repository can have allow squash-merging pull requests or not'
+    default: 'true'
+  ALLOW_MERGE_COMMIT:
+    description: 'Provide whether repository can have allow merging pull requests with a merge commit or not'
+    default: 'true'
+  ALLOW_REBASE_MERGE:
+    description: 'Provide whether repository can have allow rebase-merging pull requests or not'
+    default: 'true'
+  ALLOW_AUTO_MERGE:
+    description: 'Provide whether repository can have allow auto-merge on pull requests or not'
+    default: 'true'
+  DELETE_BRANCH_ON_MERGE:
+    description: 'Provide whether repository can have allow automatically deleting head branches when pull requests are merged or not'
+    default: 'true'
+outputs:
+  modify_repoID:
+    description: Getting Id and full name of repository
+    value: ${{ steps.Repo_ID.outputs.Repo_Id }}
+
+runs:
+  using: composite
+  steps:    
+
+    - name: update repository
+      id: Repo_ID
+      env: 
+        GITHUB_TOKEN: ${{ inputs.USER_PAT }}
+      run: |           
+
+        # Form the Repo params
+
+          command="gh api --method PATCH -H \"Accept: application/vnd.github+json\" -H \"X-GitHub-Api-Version: 2022-11-28\" /repos/${{ inputs.ORG_NAME }}/${{ inputs.REPO_NAME }} -f name=\"${{ inputs.REPO_NAME }}\"" 
+                     
+          if [[ -n "${{ inputs.DESCRIPTION }}" ]]; then
+            command+=" -f description=\"${{ inputs.DESCRIPTION }}\""
+          fi
+
+          if [[ -n "${{ inputs.HOME_PAGE }}" ]]; then
+            command+=" -f homepage=\"${{ inputs.HOME_PAGE }}\""
+          fi 
+           
+          if [[ -n "${{ inputs.PRIVATE }}" ]]; then
+            command+=" -F private=\"${{ inputs.PRIVATE }}\""
+          fi
+
+          if [[ -n "${{ inputs.HAS_ISSUES }}" ]]; then
+            command+=" -F has_issues=\"${{ inputs.HAS_ISSUES }}\""
+          fi
+
+          if [[ -n "${{ inputs.HAS_PROJECTS }}" ]]; then
+            command+=" -F has_projects=\"${{ inputs.HAS_PROJECTS }}\""
+          fi
+
+          if [[ -n "${{ inputs.HAS_WIKI }}" ]]; then
+            command+=" -F has_wiki=\"${{ inputs.HAS_WIKI }}\""
+          fi
+
+          if [[ -n "${{ inputs.HAS_DISCUSSIONS }}" ]]; then
+            command+=" -F has_discussions=\"${{ inputs.HAS_DISCUSSIONS }}\""
+          fi
+
+          if [[ -n "${{ inputs.ALLOW_SQUASH_MERGE }}" ]]; then
+            command+=" -F allow_squash_merge=\"${{ inputs.ALLOW_SQUASH_MERGE }}\""
+          fi
+
+          if [[ -n "${{ inputs.ALLOW_MERGE_COMMIT }}" ]]; then
+            command+=" -F allow_merge_commit=\"${{ inputs.ALLOW_MERGE_COMMIT }}\""
+          fi
+
+          if [[ -n "${{ inputs.ALLOW_REBASE_MERGE }}" ]]; then
+            command+=" -F allow_rebase_merge=\"${{ inputs.ALLOW_REBASE_MERGE }}\""
+          fi
+
+          if [[ -n "${{ inputs.ALLOW_AUTO_MERGE }}" ]]; then
+            command+=" -F allow_auto_merge=\"${{ inputs.ALLOW_AUTO_MERGE }}\""
+          fi
+
+          if [[ -n "${{ inputs.DELETE_BRANCH_ON_MERGE }}" ]]; then
+            command+=" -F delete_branch_on_merge=\"${{ inputs.DELETE_BRANCH_ON_MERGE }}\""
+          fi
+
+          # update the repository  
+          command+=" > \"modify_repo.json\""
+          eval $command 
+
+          Repo_id=$(cat modify_repo.json | jq -r '[.id, .full_name] | join(" ")')
+          echo "Repo_id: $Repo_id"
+          echo "::set-output name=Repo_Id::$Repo_id"
+
+      shell: bash 
+
+    - name: upload output as devicefarm:ListArtifacts
+      uses: actions/upload-artifact@v2
+      with:
+          name: modify_repo
+          path: ./modify_repo.json  
+

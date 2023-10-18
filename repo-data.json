@@ -1,0 +1,11 @@
+{
+  "org_name": "im-sandbox-kalpanarc",
+  "billing_email": "abc@gmail.com",
+  "repository": {
+    "name": "p20",
+    "has_wiki": true,
+    "has_projects": true,
+    "has_discussions": true,
+    "assignees": "KalpanaReddyC,RajKumarInfomagnus"
+  }
+}

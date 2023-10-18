@@ -1,0 +1,31 @@
+name: test-add-label-to-issue
+on:
+  workflow_dispatch:
+    inputs:     
+      ORG_NAME:
+        description: 'Organization Name'
+        required: true
+      REPO_NAME:
+        description: 'Repository Name'
+        required: true
+      ISSUE_NUMBER:
+        description: 'Issue Number'
+        required: true
+      LABELS:
+        description: 'Label Name'
+        required: true
+jobs:
+  add-label-to-issue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Add label to issue
+        uses: ./provisioner/actions/add-label-to-issue
+        with:
+          USER_PAT: ${{ secrets.ISSUE_OPS_TOKEN }}
+          ORG_NAME: ${{ github.event.inputs.ORG_NAME }}
+          REPO_NAME: ${{ github.event.inputs.REPO_NAME }}
+          ISSUE_NUMBER: ${{ github.event.inputs.ISSUE_NUMBER }}
+          LABELS: ${{ github.event.inputs.LABELS }}
