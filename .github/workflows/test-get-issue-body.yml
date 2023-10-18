@@ -18,3 +18,25 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Install gh CLI
+        run: |
+          sudo apt-get update
+          sudo apt-get install gh 
+
+      - name: Login to GitHub
+        run: |
+          gh auth login --with-token <<< "${{ secrets.ISSUE_OPS_TOKEN }}" 
+
+      - name: Get Issue body
+        id: get_issue_body
+        uses: ./provisioner/actions/get-issue-body       
+        with:
+          USER_PAT: ${{ secrets.ISSUE_OPS_TOKEN }}
+          ISSUE_NUMBER: ${{ github.event.inputs.ISSUE_NUMBER }}
+          ORG_NAME: ${{ github.event.inputs.ORG_NAME }}
+          REPO_NAME: ${{ github.event.inputs.REPO_NAME }}    
+
+      - name: Print Issue body
+        run: |
+          echo "Issue Body: ${{ steps.get_issue_body.outputs.RESPONSE }}"    
