@@ -1,0 +1,1 @@
+act -W .github/workflows/test-get-all-labels-issue.yml -e provisioner/tests/inputs/get-all-labels-issue.json --quiet --secret-file ./test.secrets
