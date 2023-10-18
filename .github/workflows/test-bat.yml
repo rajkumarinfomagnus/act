@@ -10,6 +10,6 @@ jobs:
       uses: actions/checkout@v2
     - name: Run bat file
       run: |
-        cd $GITHUB_WORKSPACE/provisioner/tests/
-        chmod +x test-add-assignee-to-issue.bat.
-        test-add-assignee-to-issue.bat
+        
+        chmod +x ./provisioner/tests/test-add-assignee-to-issue.bat
+        ./provisioner/tests/-add-assignee-to-issue.bat
