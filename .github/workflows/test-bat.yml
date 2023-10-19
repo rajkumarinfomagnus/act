@@ -11,5 +11,5 @@ jobs:
     - name: Run bat file
       run: |
         
-        chmod +x ./provisioner/tests/test-add-assignee-to-issue.bat
-        ./provisioner/tests/test-add-assignee-to-issue.bat
+        chmod +x ./provisioner/tests/test-add-assignee-to-issue.sh
+        ./provisioner/tests/test-add-assignee-to-issue.sh
